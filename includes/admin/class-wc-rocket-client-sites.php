@@ -68,34 +68,20 @@ class WC_Rocket_Client_Sites {
     public function render_page() {
         global $wpdb;
 
-        // Debug existing tables
-        error_log('Checking tables:');
-        $sites_table = $wpdb->get_results("SHOW TABLES LIKE '{$wpdb->prefix}wc_rocket_sites'");
-        $allocations_table = $wpdb->get_results("SHOW TABLES LIKE '{$wpdb->prefix}wc_rocket_site_allocations'");
-        error_log('Sites table exists: ' . (!empty($sites_table) ? 'Yes' : 'No'));
-        error_log('Allocations table exists: ' . (!empty($allocations_table) ? 'Yes' : 'No'));
+        // Debug table structure
+        $table_structure = $wpdb->get_results("DESCRIBE {$wpdb->prefix}wc_rocket_sites");
+        error_log('Sites table structure: ' . print_r($table_structure, true));
 
-        // Check existing data
-        $existing_sites = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}wc_rocket_sites");
-        error_log('Existing sites: ' . print_r($existing_sites, true));
-
-        // Original query with table structure debug
+        // Updated query without allocation_id
         $sites = $wpdb->get_results("
             SELECT
                 s.*,
                 a.order_id,
                 u.user_email,
                 u.display_name,
-                o.post_status as order_status,
-                -- Debug columns
-                s.id as site_id,
-                s.site_name,
-                s.customer_id,
-                s.allocation_id,
-                s.status as site_status,
-                s.created_at as site_created
+                o.post_status as order_status
             FROM {$wpdb->prefix}wc_rocket_sites s
-            LEFT JOIN {$wpdb->prefix}wc_rocket_site_allocations a ON s.allocation_id = a.id
+            LEFT JOIN {$wpdb->prefix}wc_rocket_site_allocations a ON s.site_allocation_id = a.id
             LEFT JOIN {$wpdb->users} u ON s.customer_id = u.ID
             LEFT JOIN {$wpdb->posts} o ON a.order_id = o.ID
             ORDER BY s.id DESC
