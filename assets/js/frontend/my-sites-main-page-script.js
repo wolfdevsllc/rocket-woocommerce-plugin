@@ -164,11 +164,11 @@ jQuery(document).ready(function ($) {
     $submitButton.prop("disabled", true);
 
     $.ajax({
-      url: ajaxurl,
+      url: wc_rocket_params.ajax_url,
       method: "POST",
       data: {
         action: "create_rocket_site",
-        nonce: nonce,
+        nonce: wc_rocket_params.nonce,
         site_name: $("#site_name").val(),
         site_location: $("#site_location").val(),
         allocation_id: allocation_id,
@@ -179,6 +179,12 @@ jQuery(document).ready(function ($) {
         } else {
           alert(response.data.message || "Error creating site");
         }
+      },
+      error: function (xhr, status, error) {
+        console.error("AJAX error:", error);
+        console.error("Status:", status);
+        console.error("Response:", xhr.responseText);
+        alert("Error creating site");
       },
       complete: function () {
         $submitButton.prop("disabled", false);
