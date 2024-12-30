@@ -21,6 +21,15 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
             $customer_id = get_current_user_id();
             error_log('Getting allocations for customer: ' . $customer_id);
 
+            // Get allocations and check the raw SQL query
+            global $wpdb;
+            $table_name = $wpdb->prefix . WC_Rocket_Site_Allocations::$wc_rocket_site_allocations_table;
+            $query = $wpdb->prepare(
+                "SELECT * FROM $table_name WHERE customer_id = %d ORDER BY created_at DESC",
+                $customer_id
+            );
+            error_log('SQL Query: ' . $query);
+
             $allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_allocations($customer_id);
             error_log('Raw allocations: ' . print_r($allocations, true));
 
@@ -53,7 +62,7 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
                     '<div class="allocation-info">
                         <p>%s</p>
                         <p>%s</p>
-                        <input type="hidden" id="allocation_id" name="allocation_id" value="%d">
+                        <input type="hidden" name="allocation_id" value="%d">
                     </div>',
                     sprintf(
                         __('Using allocation from order #%s', 'wc-rocket'),
