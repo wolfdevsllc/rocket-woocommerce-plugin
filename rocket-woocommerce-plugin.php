@@ -71,6 +71,9 @@ if ( WC_Rocket_Dependencies::wc_active_check() ) :
 
     WC_Rocket_Order_Handler::get_instance();
 
+    // After your other includes, before the plugin class definition
+    require_once WC_ROCKET_FILE . 'includes/admin/class-wc-rocket-user-manager.php';
+
 else :
     add_action('admin_notices', 'wc_rocket_inactive_notice');
     return;
@@ -105,6 +108,12 @@ class WC_Rocket_Plugin {
 
         // redirect to settings page after plugin active
         add_action( 'activated_plugin', array($this, 'redirect_rocket_settings_page'), 99 );
+
+        // Inside your plugin's main class initialization (likely in __construct or init)
+        add_action('init', function() {
+            // Initialize User Manager
+            WC_Rocket_User_Manager::get_instance();
+        });
 
     }
 

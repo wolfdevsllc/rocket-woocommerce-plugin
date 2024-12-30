@@ -6,6 +6,13 @@
  */
 defined('ABSPATH') || exit;
 
+// // Check user access
+// $has_access = get_user_meta(get_current_user_id(), 'wc_rocket_site_access', true);
+// if ($has_access === 'disabled') {
+//     wp_redirect(wc_get_account_endpoint_url('dashboard'));
+//     exit;
+// }
+
 $ajax_params = array(
     'ajax_url' => admin_url('admin-ajax.php'),
     'nonce' => wp_create_nonce('wc_rocket_nonce')

@@ -120,6 +120,18 @@ if (!class_exists('WC_Rocket_Endpoints')) {
          * render my sites page
          */
         public function render_my_sites_page(){
+            $has_access = get_user_meta(get_current_user_id(), 'wc_rocket_site_access', true);
+
+            if ($has_access === 'disabled') {
+                wc_rocket_site_get_template(
+                    'my-sites/access-denied.php',
+                    array(
+                        'message' => __('Your access to My Sites has been disabled. Please contact support for assistance.', 'wc-rocket')
+                    )
+                );
+                return;
+            }
+
             $my_sites = WC_Rocket_Sites_Crud::get_instance()->get_sites_from_rocket_sites_table(get_current_user_id());
             $show_manage_btn = WC_Rocket_Admin_Settings_Page::get_control_panel_accessibility();
             wc_rocket_site_get_template(
@@ -127,7 +139,6 @@ if (!class_exists('WC_Rocket_Endpoints')) {
                 array(
                     'my_sites' => $my_sites,
                     'show_manage_btn' => $show_manage_btn
-
                 )
             );
         }
@@ -146,10 +157,23 @@ if (!class_exists('WC_Rocket_Endpoints')) {
          * render manange site page
          */
         public function render_manage_site_page($site_id){
+            $has_access = get_user_meta(get_current_user_id(), 'wc_rocket_site_access', true);
+
+            if ($has_access === 'disabled') {
+                wc_rocket_site_get_template(
+                    'my-sites/access-denied.php',
+                    array(
+                        'message' => __('Your access to Site Management has been disabled. Please contact support for assistance.', 'wc-rocket')
+                    )
+                );
+                return;
+            }
+
             $is_manage_page_allowed = false;
             $control_panel_is_accessed = WC_Rocket_Admin_Settings_Page::get_control_panel_accessibility();
-            $is_a_valid_user_site = WC_Rocket_Sites_Crud::get_instance()->is_a_user_own_specific_site(get_current_user_id(),$site_id);
-            if($is_a_valid_user_site && $control_panel_is_accessed){
+            $is_a_valid_user_site = WC_Rocket_Sites_Crud::get_instance()->is_a_user_own_specific_site(get_current_user_id(), $site_id);
+
+            if ($is_a_valid_user_site && $control_panel_is_accessed) {
                 $site_access_token = WC_Rocket_Api_Site_Access_Token_Request::get_instance()->generate_site_access_token($site_id);
                 $data = [
                     "site_id" => $site_id,
@@ -171,7 +195,7 @@ if (!class_exists('WC_Rocket_Endpoints')) {
             wc_rocket_site_get_template(
                 'my-sites/manage-site-page.php',
                 array(
-                    'is_manage_page_allowed' => $is_manage_page_allowed,
+                    'is_manage_page_allowed' => $is_manage_page_allowed
                 )
             );
         }

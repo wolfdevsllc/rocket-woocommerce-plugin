@@ -8,86 +8,70 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
         public function __construct() {
             add_action('wp_ajax_create_rocket_site', array($this, 'ajax_create_rocket_site'));
             add_action('wp_ajax_get_available_allocations', array($this, 'ajax_get_available_allocations'));
+            add_action('template_redirect', array($this, 'check_site_access'));
         }
 
         public function ajax_get_available_allocations() {
             check_ajax_referer('wc_rocket_nonce', 'nonce');
 
             if (!is_user_logged_in()) {
-                // error_log('User not logged in');
                 wp_send_json_error(array('message' => __('You must be logged in.', 'wc-rocket')));
             }
 
             $customer_id = get_current_user_id();
-            // error_log('Getting allocations for customer: ' . $customer_id);
 
             $allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_allocations($customer_id);
-            // error_log('Raw allocations: ' . print_r($allocations, true));
 
             if (empty($allocations)) {
-                // error_log('No allocations found');
                 wp_send_json_error(array('message' => __('No allocations found.', 'wc-rocket')));
                 return;
             }
 
-            // Get the first available allocation
-            $allocation = null;
+            // Calculate total available sites across all allocations
+            $total_sites = 0;
+            $sites_used = 0;
+            $allocation_details = array();
+
             foreach ($allocations as $alloc) {
-                // error_log("Checking allocation {$alloc->id}: {$alloc->sites_created}/{$alloc->total_sites}");
-                if ($alloc->total_sites > $alloc->sites_created) {
-                    $allocation = $alloc;
-                    break;
-                }
+                $total_sites += $alloc->total_sites;
+                $sites_used += $alloc->sites_created;
+                $allocation_details[] = array(
+                    'order_id' => $alloc->order_id,
+                    'total' => $alloc->total_sites,
+                    'used' => $alloc->sites_created
+                );
             }
 
-            if (!$allocation) {
-                // error_log('No available allocations found');
+            if ($total_sites <= $sites_used) {
                 wp_send_json_error(array('message' => __('No available site allocations found.', 'wc-rocket')));
                 return;
             }
 
-            // error_log('Selected allocation: ' . print_r($allocation, true));
-
-            // Only send the HTML for allocation details display, not the hidden input
+            // Response data with combined allocation info
             $response_data = array(
-                'html' => sprintf(
-                    '<div class="allocation-info">
-                        <p>%s</p>
-                        <p>%s</p>
-                    </div>',
-                    sprintf(
-                        __('Using allocation from order #%s', 'wc-rocket'),
-                        $allocation->order_id
-                    ),
-                    sprintf(
-                        __('Sites: %d/%d used', 'wc-rocket'),
-                        $allocation->sites_created,
-                        $allocation->total_sites
-                    )
-                ),
-                'allocation_id' => $allocation->id  // This will be used by JavaScript to set the hidden input value
+                'html' => $this->get_allocation_html($allocation_details, $total_sites, $sites_used),
+                'allocation_ids' => wp_json_encode(array_column($allocations, 'id'))  // Send all allocation IDs
             );
 
-            // error_log('Sending response: ' . print_r($response_data, true));
             wp_send_json_success($response_data);
         }
 
-        private function get_allocation_html($allocation) {
-            return sprintf(
-                '<div class="allocation-info">
-                    <p>%s</p>
-                    <p>%s</p>
-                </div>',
+        private function get_allocation_html($allocation_details, $total_sites, $sites_used) {
+            $html = '<div class="allocation-info">';
+
+            // Show total summary only
+            $html .= sprintf(
+                '<div class="allocation-summary"><p>%s</p></div>',
                 sprintf(
-                    __('Using allocation from order #%s', 'wc-rocket'),
-                    $allocation->order_id
-                ),
-                sprintf(
-                    __('Sites: %d/%d used', 'wc-rocket'),
-                    $allocation->sites_created,
-                    $allocation->total_sites
+                    __('Total Sites Available: %d/%d used', 'wc-rocket'),
+                    $sites_used,
+                    $total_sites
                 )
             );
+
+            $html .= '</div>';
+
+            return $html;
         }
 
         public function ajax_create_rocket_site() {
@@ -100,42 +84,17 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
             $customer_id = get_current_user_id();
             $site_name = sanitize_text_field($_POST['site_name']);
             $site_location = intval($_POST['site_location']);
-            $allocation_id = isset($_POST['allocation_id']) ? intval($_POST['allocation_id']) : 0;
-
-            // error_log('Creating site with:');
-            // error_log('Customer ID: ' . $customer_id);
-            // error_log('Site Name: ' . $site_name);
-            // error_log('Site Location: ' . $site_location);
-            // error_log('Allocation ID: ' . $allocation_id);
-
-            if (!$allocation_id) {
-                wp_send_json_error(array('message' => __('No allocation selected.', 'wc-rocket')));
-            }
-
-            // Debug allocation lookup
-            $allocation = $this->get_allocation_by_id($allocation_id);
-            // error_log('Found allocation: ' . print_r($allocation, true));
-
-            if (!$allocation || $allocation->customer_id != $customer_id) {
-                // error_log('Invalid allocation - allocation: ' . ($allocation ? 'exists' : 'null'));
-                // error_log('Customer ID match: ' . ($allocation && $allocation->customer_id == $customer_id ? 'yes' : 'no'));
-                wp_send_json_error(array('message' => __('Invalid allocation.', 'wc-rocket')));
-                return;
-            }
 
             // Validate site name
             if (!$this->validate_site_name($site_name)) {
-                wp_send_json_error(array('message' => __('Invalid site name. Please use only letters, numbers, and hyphens.', 'wc-rocket')));
+                wp_send_json_error(array('message' => __('Invalid site name. Please use only letters, numbers, spaces, and hyphens.', 'wc-rocket')));
                 return;
             }
 
-            // Get allocation
-            $allocation = $allocation_id > 0 ?
-                $this->get_allocation_by_id($allocation_id) :
-                $this->get_next_available_allocation($customer_id);
-
+            // Get next available allocation
+            $allocation = $this->get_next_available_allocation($customer_id);
             if (!$allocation) {
-                wp_send_json_error(array('message' => __('No available allocations found.', 'wc-rocket')));
+                wp_send_json_error(array('message' => __('No available site quota.', 'wc-rocket')));
                 return;
             }
 
@@ -147,11 +106,15 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
                 return;
             }
 
+            // Get updated total available sites
+            $available_sites = WC_Rocket_Site_Allocations::get_instance()->get_customer_available_allocations($customer_id);
+
+            $result['remaining_sites'] = $available_sites;
             wp_send_json_success($result);
         }
 
         private function validate_site_name($site_name) {
-            return preg_match('/^[a-zA-Z0-9-]+$/', $site_name);
+            return preg_match('/^[a-zA-Z0-9- ]+$/', $site_name);
         }
 
         private function create_site($allocation, $site_name, $site_location) {
@@ -267,6 +230,21 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
                 LIMIT 1",
                 $customer_id
             ));
+        }
+
+        public function check_site_access() {
+            // Only check on my-sites page
+            if (!is_wc_endpoint_url('my-sites')) {
+                return;
+            }
+
+            $user_id = get_current_user_id();
+            $has_access = get_user_meta($user_id, 'wc_rocket_site_access', true);
+
+            if ($has_access === 'disabled') {
+                wp_redirect(wc_get_account_endpoint_url('dashboard'));
+                exit;
+            }
         }
 
         public static function get_instance() {

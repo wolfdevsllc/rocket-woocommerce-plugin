@@ -27,10 +27,8 @@ jQuery(document).ready(function ($) {
       success: function (response) {
         console.log("Allocation response:", response);
         if (response.success) {
-          // Update allocation details and ID
+          // Update allocation details only
           $("#allocation_details").html(response.data.html);
-          $("#allocation_id").val(response.data.allocation_id);
-          console.log("Set allocation ID to:", response.data.allocation_id);
           $form.removeClass("hide");
         } else {
           alert(response.data.message || "Error loading allocations");
@@ -154,12 +152,6 @@ jQuery(document).ready(function ($) {
 
     var $form = $(this);
     var $submitButton = $form.find("button[type='submit']");
-    var allocation_id = $("#allocation_id").val();
-
-    if (!allocation_id) {
-      alert("No allocation available");
-      return;
-    }
 
     $submitButton.prop("disabled", true);
 
@@ -171,7 +163,6 @@ jQuery(document).ready(function ($) {
         nonce: wc_rocket_params.nonce,
         site_name: $("#site_name").val(),
         site_location: $("#site_location").val(),
-        allocation_id: allocation_id,
       },
       success: function (response) {
         if (response.success) {
@@ -200,6 +191,6 @@ jQuery(document).ready(function ($) {
   });
 
   function validateSiteName(name) {
-    return /^[a-zA-Z0-9-]+$/.test(name);
+    return /^[a-zA-Z0-9- ]+$/.test(name);
   }
 });
