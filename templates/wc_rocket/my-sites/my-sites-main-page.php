@@ -6,6 +6,10 @@
  */
 defined('ABSPATH') || exit;
 
+$ajax_params = array(
+    'ajax_url' => admin_url('admin-ajax.php'),
+    'nonce' => wp_create_nonce('wc_rocket_nonce')
+);
 ?>
 <div class="wc-rocket-my-sites-wrap wc-rocket-loader-wrapper">
     <?php include WC_ROCKET_FILE . '/templates/wc_rocket/general/wc-rocket-loader.php'; ?>
@@ -32,6 +36,12 @@ defined('ABSPATH') || exit;
                 <?php _e('Create New Site', 'wc-rocket'); ?>
             </button>
         </div>
+
+        <script type="text/javascript">
+            /* <![CDATA[ */
+            var wc_rocket_params = <?php echo json_encode($ajax_params); ?>;
+            /* ]]> */
+        </script>
 
         <!-- Site Creation Form (Initially Hidden) -->
         <div class="wc-rocket-create-site-form hide">

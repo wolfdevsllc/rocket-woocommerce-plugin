@@ -5,24 +5,7 @@ if (!class_exists('WC_Rocket_Frontend')) {
         private static $instance;
 
         public function __construct() {
-            add_action('wp_head', array($this, 'add_ajax_url'), 5);
             add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'), 99);
-        }
-
-        public function add_ajax_url() {
-            if (!is_account_page()) {
-                return;
-            }
-            ?>
-            <script type="text/javascript">
-                /* <![CDATA[ */
-                var wc_rocket_params = {
-                    ajax_url: "<?php echo admin_url('admin-ajax.php'); ?>",
-                    nonce: "<?php echo wp_create_nonce('wc_rocket_nonce'); ?>"
-                };
-                /* ]]> */
-            </script>
-            <?php
         }
 
         public function enqueue_scripts() {
