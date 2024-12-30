@@ -18,17 +18,17 @@ if (!class_exists('WC_Rocket_Sites_Crud')) {
         /**
          * Create rocket sites table with columns
          * id
-         * site_id: rocket site id return from create site api 
+         * site_id: rocket site id return from create site api
          * customer_id
          * product_id
-         * domain: rocket domain return from create site api 
+         * domain: rocket domain return from create site api
          * status: 1 for active, 2 for deleted
          * admin_email
          * created_at
          * updated_at
          * deleted_at
-         * 
-         * 
+         *
+         *
          * @global object $wpdb
          */
         public function create_rocket_sites_table() {
@@ -55,7 +55,7 @@ if (!class_exists('WC_Rocket_Sites_Crud')) {
                         deleted_at TIMESTAMP NULL,
                         PRIMARY KEY  (id)
                     ) $charset_collate;";
-                
+
                 update_option ('old_site_name_rows_are_added', true);
 
                 require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -82,10 +82,10 @@ if (!class_exists('WC_Rocket_Sites_Crud')) {
             $sql_query = "ALTER TABLE $sites_table ADD site_name VARCHAR (255) NULL AFTER domain";
             $wpdb->query($sql_query);
         }
-        
+
         /**
          * insert mobile booking buffer data
-         * 
+         *
          * @global object $wpdb
          * @param object $booking
          */
@@ -119,12 +119,12 @@ if (!class_exists('WC_Rocket_Sites_Crud')) {
                         '%s'
                     )
             );
-            
+
         }
 
         /**
          * get sites from database
-         * 
+         *
          * @global object $wpdb
          * @param int $user_id
          * @param int $status
@@ -160,13 +160,13 @@ if (!class_exists('WC_Rocket_Sites_Crud')) {
                 return [];
             }
 
-            
+
             return $wpdb->get_results( $wpdb->prepare( $sql, $value ) );
         }
 
         /**
          * (soft) delete site from database
-         * 
+         *
          * @global object $wpdb
          * @param int $site_id
          * @param int $user_id
@@ -175,7 +175,7 @@ if (!class_exists('WC_Rocket_Sites_Crud')) {
         public static function delete_site_from_rocket_sites_table($user_id, $site_id) {
             global $wpdb;
             $table_name = $wpdb->prefix . self::$wc_rocket_sites_table;
-            return $wpdb->update($table_name, 
+            return $wpdb->update($table_name,
                         ['deleted_at' => current_time('mysql') ,'status' => WC_ROCKET_DELETED_SITE_STATUS],
                         ['site_id' => $site_id, 'customer_id' => $user_id]
                     );
@@ -183,7 +183,7 @@ if (!class_exists('WC_Rocket_Sites_Crud')) {
 
         /**
          * update rocket site data in database
-         * 
+         *
          * @global object $wpdb
          * @param array $site_data
          * @return boolean
@@ -196,21 +196,21 @@ if (!class_exists('WC_Rocket_Sites_Crud')) {
                 $updated_data_condition = array(
                     'site_id' => $site_data['site_id']
                 );
-                
+
                 if(isset($site_data['site_name']) && $site_data['site_name'])
                     $updated_data['site_name'] = $site_data['site_name'];
                 if(isset($site_data['user_id']) && $site_data['user_id'])
                     $updated_data_condition['customer_id'] = $site_data['user_id'];
-                
+
                 return $wpdb->update($table_name, $updated_data , $updated_data_condition);
             }
-            
+
             return false;
         }
-        
+
         /**
          * check if a user own a site
-         * 
+         *
          * @global object $wpdb
          * @param int $site_id
          * @param int $user_id
@@ -232,7 +232,7 @@ if (!class_exists('WC_Rocket_Sites_Crud')) {
             }
             return false;
         }
-        
+
         /**
          * WC_Rocket_Sites_Crud instance
          *

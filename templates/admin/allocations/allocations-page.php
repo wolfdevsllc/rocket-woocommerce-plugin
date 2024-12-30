@@ -25,9 +25,12 @@
                 <tr>
                     <td><?php echo esc_html($allocation->id); ?></td>
                     <td>
-                        <?php echo esc_html($allocation->customer_name); ?>
-                        <br>
-                        <small><?php echo esc_html($allocation->customer_email); ?></small>
+                        <?php
+                        echo esc_html($allocation->customer_name);
+                        if (!empty($allocation->user_email)) {
+                            echo '<br><small>' . esc_html($allocation->user_email) . '</small>';
+                        }
+                        ?>
                     </td>
                     <td><?php echo esc_html($allocation->product_name); ?></td>
                     <td>
@@ -39,7 +42,11 @@
                     <td><?php echo esc_html($allocation->total_sites); ?></td>
                     <td><?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($allocation->created_at))); ?></td>
                     <td class="actions">
-                        <?php echo $this->get_row_actions($allocation); ?>
+                        <?php
+                        if (method_exists($this, 'get_row_actions')) {
+                            echo $this->get_row_actions($allocation);
+                        }
+                        ?>
                     </td>
                 </tr>
             <?php endforeach; ?>

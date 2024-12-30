@@ -54,6 +54,11 @@ if (!class_exists('WC_Rocket_Allocation_Manager')) {
                 WC_ROCKET_VERSION
             );
 
+            // Add version check to help with cache busting
+            if (!file_exists(WC_ROCKET_FILE . 'assets/css/admin/allocations.css')) {
+                error_log('WC Rocket: allocations.css file is missing');
+            }
+
             wp_enqueue_script(
                 'wc-rocket-admin-allocations',
                 WC_ROCKET_URL . 'assets/js/admin/allocations.js',
