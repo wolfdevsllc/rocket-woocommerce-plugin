@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Rocket WooCommerce Plugin 
- * Description: An eCommerce plugin that integrate with rocket.net to Resell WordPress Hosting 
- * Version: 1.0.4
+ * Plugin Name: Rocket WooCommerce Plugin
+ * Description: An eCommerce plugin that integrate with rocket.net to Resell WordPress Hosting
+ * Version: 2.0.0
  * Author: Rocket.net
  * Author URI: https://rocket.net/
  * Text Domain: wc-rocket
@@ -81,13 +81,13 @@ class WC_Rocket_Plugin {
 
     public function __construct()
     {
-        
+
         require_once WC_ROCKET_FILE . 'includes/index.php';
-        
+
         add_action( 'init', __CLASS__ . '::maybe_activate_wc_rocket', 11 );
 
         register_deactivation_hook( __FILE__, __CLASS__ . '::deactivate_wc_rocket' );
-        
+
         // redirect to settings page after plugin active
         add_action( 'activated_plugin', array($this, 'redirect_rocket_settings_page'), 99 );
 
@@ -97,18 +97,18 @@ class WC_Rocket_Plugin {
      * Checks on each admin page load if woocommerce and woocommerce subscription box plugin is activated.
      */
     public static function maybe_activate_wc_rocket() {
-        
+
         $is_active = get_option( self::$option_prefix . '_is_active', false );
 
         if ( false == $is_active ) {
 
             // install dummy product
-            
+
             update_option( self::$option_prefix . '_is_active', true );
             flush_rewrite_rules();
 
             do_action( 'wc_rocket_plugin_activated' );
-            
+
         }
 
     }
@@ -122,19 +122,19 @@ class WC_Rocket_Plugin {
 
         do_action( 'wc_rocket_plugin_deactivated' );
     }
-    
+
     /**
      * redirect to settings page after plugin active
-     * 
+     *
      * @param string $plugin
      */
     public function redirect_rocket_settings_page($plugin) {
-        
+
         if( $plugin == plugin_basename( __FILE__ ) ) {
             WC_Rocket_Admin_Settings_Page::get_instance()->add_rocket_setting_capability();
             exit( wp_redirect( admin_url( 'admin.php?page=rocket-settings' ) ) );
         }
-           
+
     }
 
     /**
