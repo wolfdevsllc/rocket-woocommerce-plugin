@@ -40,6 +40,16 @@ if (!class_exists('WC_Order_Item_Rocket')) {
             }
         }
 
+        public function wc_rocket_order_item_meta_data($formatted_meta, $order_item) {
+            // Remove old site details meta keys
+            foreach ($formatted_meta as $key => $meta) {
+                if (in_array($meta->key, array('rocket_site_name', 'rocket_site_location'))) {
+                    unset($formatted_meta[$key]);
+                }
+            }
+            return $formatted_meta;
+        }
+
         public static function get_instance() {
             if (!isset(self::$instance)) {
                 self::$instance = new self();
