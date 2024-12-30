@@ -41,12 +41,10 @@ defined('ABSPATH') || exit;
 
             <form id="rocket-create-site-form">
                 <?php wp_nonce_field('wc_rocket_nonce', 'nonce'); ?>
-                <input type="hidden" id="allocation_id" name="allocation_id" value="">
 
                 <p class="form-row">
                     <label for="site_name"><?php _e('Site Name', 'wc-rocket'); ?> <span class="required">*</span></label>
                     <input type="text" class="input-text" name="site_name" id="site_name" required>
-                    <span class="description"><?php _e('Use only letters, numbers, and hyphens.', 'wc-rocket'); ?></span>
                 </p>
 
                 <p class="form-row">
@@ -60,6 +58,7 @@ defined('ABSPATH') || exit;
 
                 <p class="form-row">
                     <button type="submit" class="button"><?php _e('Create Site', 'wc-rocket'); ?></button>
+                    <button type="button" class="button cancel-create-site"><?php _e('Cancel', 'wc-rocket'); ?></button>
                 </p>
             </form>
         </div>

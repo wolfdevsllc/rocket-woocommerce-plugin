@@ -14,6 +14,7 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
             check_ajax_referer('wc_rocket_nonce', 'nonce');
 
             if (!is_user_logged_in()) {
+                error_log('User not logged in');
                 wp_send_json_error(array('message' => __('You must be logged in.', 'wc-rocket')));
             }
 
@@ -21,9 +22,10 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
             error_log('Getting allocations for customer: ' . $customer_id);
 
             $allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_allocations($customer_id);
-            error_log('Found allocations: ' . print_r($allocations, true));
+            error_log('Raw allocations: ' . print_r($allocations, true));
 
             if (empty($allocations)) {
+                error_log('No allocations found');
                 wp_send_json_error(array('message' => __('No allocations found.', 'wc-rocket')));
                 return;
             }
@@ -39,17 +41,36 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
             }
 
             if (!$allocation) {
+                error_log('No available allocations found');
                 wp_send_json_error(array('message' => __('No available site allocations found.', 'wc-rocket')));
                 return;
             }
 
             error_log('Selected allocation: ' . print_r($allocation, true));
 
-            // Make sure allocation_id is properly set in response
-            wp_send_json_success(array(
-                'html' => $this->get_allocation_html($allocation),
+            $response_data = array(
+                'html' => sprintf(
+                    '<div class="allocation-info">
+                        <p>%s</p>
+                        <p>%s</p>
+                        <input type="hidden" id="allocation_id" name="allocation_id" value="%d">
+                    </div>',
+                    sprintf(
+                        __('Using allocation from order #%s', 'wc-rocket'),
+                        $allocation->order_id
+                    ),
+                    sprintf(
+                        __('Sites: %d/%d used', 'wc-rocket'),
+                        $allocation->sites_created,
+                        $allocation->total_sites
+                    ),
+                    $allocation->id
+                ),
                 'allocation_id' => $allocation->id
-            ));
+            );
+
+            error_log('Sending response: ' . print_r($response_data, true));
+            wp_send_json_success($response_data);
         }
 
         private function get_allocation_html($allocation) {
