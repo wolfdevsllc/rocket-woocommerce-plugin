@@ -6,6 +6,52 @@ class WC_Rocket_Client_Sites {
     public function __construct() {
         add_action('admin_menu', array($this, 'add_menu_item'), 55);
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
+
+        // Add table creation on plugin activation
+        add_action('init', array($this, 'create_tables'));
+    }
+
+    public function create_tables() {
+        global $wpdb;
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        // Sites table
+        $table_name = $wpdb->prefix . 'wc_rocket_sites';
+        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            site_name varchar(255) NOT NULL,
+            customer_id bigint(20) NOT NULL,
+            allocation_id bigint(20) NOT NULL,
+            status varchar(50) NOT NULL DEFAULT 'active',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY customer_id (customer_id),
+            KEY allocation_id (allocation_id)
+        ) $charset_collate;";
+
+        // Allocations table
+        $table_allocations = $wpdb->prefix . 'wc_rocket_site_allocations';
+        $sql .= "CREATE TABLE IF NOT EXISTS $table_allocations (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            order_id bigint(20) NOT NULL,
+            customer_id bigint(20) NOT NULL,
+            quantity int(11) NOT NULL DEFAULT 1,
+            used int(11) NOT NULL DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY order_id (order_id),
+            KEY customer_id (customer_id)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+
+        // Log table creation
+        error_log('Creating/Updating WC Rocket tables');
+        error_log('Last DB Error: ' . $wpdb->last_error);
     }
 
     public function add_menu_item() {
@@ -22,24 +68,42 @@ class WC_Rocket_Client_Sites {
     public function render_page() {
         global $wpdb;
 
-        // Get all sites with their allocation and order information
+        // Debug existing tables
+        error_log('Checking tables:');
+        $sites_table = $wpdb->get_results("SHOW TABLES LIKE '{$wpdb->prefix}wc_rocket_sites'");
+        $allocations_table = $wpdb->get_results("SHOW TABLES LIKE '{$wpdb->prefix}wc_rocket_site_allocations'");
+        error_log('Sites table exists: ' . (!empty($sites_table) ? 'Yes' : 'No'));
+        error_log('Allocations table exists: ' . (!empty($allocations_table) ? 'Yes' : 'No'));
+
+        // Check existing data
+        $existing_sites = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}wc_rocket_sites");
+        error_log('Existing sites: ' . print_r($existing_sites, true));
+
+        // Original query with table structure debug
         $sites = $wpdb->get_results("
             SELECT
                 s.*,
                 a.order_id,
                 u.user_email,
                 u.display_name,
-                o.post_status as order_status
+                o.post_status as order_status,
+                -- Debug columns
+                s.id as site_id,
+                s.site_name,
+                s.customer_id,
+                s.allocation_id,
+                s.status as site_status,
+                s.created_at as site_created
             FROM {$wpdb->prefix}wc_rocket_sites s
             LEFT JOIN {$wpdb->prefix}wc_rocket_site_allocations a ON s.allocation_id = a.id
             LEFT JOIN {$wpdb->users} u ON s.customer_id = u.ID
             LEFT JOIN {$wpdb->posts} o ON a.order_id = o.ID
-            ORDER BY s.created_at DESC
+            ORDER BY s.id DESC
         ");
 
-        // Debug
-        error_log('Client Sites Query: ' . $wpdb->last_query);
-        error_log('Found Sites: ' . print_r($sites, true));
+        error_log('Query executed: ' . $wpdb->last_query);
+        error_log('Query error if any: ' . $wpdb->last_error);
+        error_log('Results: ' . print_r($sites, true));
 
         // Add filter by order ID if provided
         if (isset($_GET['order_id'])) {
@@ -50,13 +114,7 @@ class WC_Rocket_Client_Sites {
         }
 
         // Include the template
-        if (file_exists(WC_ROCKET_FILE . 'templates/admin/client-sites.php')) {
-            include WC_ROCKET_FILE . 'templates/admin/client-sites.php';
-        } else {
-            error_log('Template file not found: ' . WC_ROCKET_FILE . 'templates/admin/client-sites.php');
-            echo '<div class="wrap"><h1>' . __('Client Sites', 'wc-rocket') . '</h1>';
-            echo '<div class="notice notice-error"><p>' . __('Template file not found.', 'wc-rocket') . '</p></div></div>';
-        }
+        include WC_ROCKET_FILE . 'templates/admin/client-sites.php';
     }
 
     public function enqueue_scripts($hook) {
