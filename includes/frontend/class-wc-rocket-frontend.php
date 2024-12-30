@@ -13,14 +13,6 @@ if (!class_exists('WC_Rocket_Frontend')) {
                 return;
             }
 
-            // Enqueue CSS
-            wp_enqueue_style(
-                'wc-rocket-my-sites',
-                WC_ROCKET_URL . 'assets/css/frontend/my-sites.css',
-                array(),
-                WC_ROCKET_VERSION . '.' . time()
-            );
-
             // Register and enqueue JS
             wp_enqueue_script(
                 'wc-rocket-my-sites',
