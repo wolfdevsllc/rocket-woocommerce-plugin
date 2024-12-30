@@ -13,7 +13,7 @@ if (!class_exists('WC_Rocket_Frontend')) {
                 'wc-rocket-my-sites',
                 WC_ROCKET_URL . 'assets/js/frontend/my-sites-main-page-script.js',
                 array('jquery'),
-                WC_ROCKET_VERSION,
+                WC_ROCKET_VERSION . '.' . time(),
                 true
             );
 

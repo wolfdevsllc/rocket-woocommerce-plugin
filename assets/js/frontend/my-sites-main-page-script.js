@@ -107,6 +107,8 @@ jQuery(function ($) {
     e.preventDefault();
     var $form = $(".wc-rocket-create-site-form");
 
+    console.log("Getting allocations...");
+
     // Get available allocations for this user
     $.ajax({
       url: wc_rocket_params.ajax_url,
@@ -116,14 +118,24 @@ jQuery(function ($) {
         nonce: wc_rocket_params.nonce,
       },
       success: function (response) {
+        console.log("Allocation response:", response);
         if (response.success) {
           // Update allocation details and ID
           $("#allocation_details").html(response.data.html);
           $("#allocation_id").val(response.data.allocation_id);
+          console.log("Set allocation ID to:", response.data.allocation_id);
+          console.log(
+            "Current allocation input value:",
+            $("#allocation_id").val()
+          );
           $form.removeClass("hide");
         } else {
           alert(response.data.message || "Error loading allocations");
         }
+      },
+      error: function (xhr, status, error) {
+        console.error("AJAX error:", error);
+        alert("Error loading allocations");
       },
     });
   });

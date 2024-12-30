@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Rocket WooCommerce Plugin
  * Description: An eCommerce plugin that integrate with rocket.net to Resell WordPress Hosting
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author: Rocket.net
  * Author URI: https://rocket.net/
  * Text Domain: wc-rocket
