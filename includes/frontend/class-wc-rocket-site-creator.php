@@ -21,15 +21,6 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
             $customer_id = get_current_user_id();
             error_log('Getting allocations for customer: ' . $customer_id);
 
-            // Get allocations and check the raw SQL query
-            global $wpdb;
-            $table_name = $wpdb->prefix . WC_Rocket_Site_Allocations::$wc_rocket_site_allocations_table;
-            $query = $wpdb->prepare(
-                "SELECT * FROM $table_name WHERE customer_id = %d ORDER BY created_at DESC",
-                $customer_id
-            );
-            error_log('SQL Query: ' . $query);
-
             $allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_allocations($customer_id);
             error_log('Raw allocations: ' . print_r($allocations, true));
 
@@ -57,12 +48,12 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
 
             error_log('Selected allocation: ' . print_r($allocation, true));
 
+            // Only send the HTML for allocation details display, not the hidden input
             $response_data = array(
                 'html' => sprintf(
                     '<div class="allocation-info">
                         <p>%s</p>
                         <p>%s</p>
-                        <input type="hidden" name="allocation_id" value="%d">
                     </div>',
                     sprintf(
                         __('Using allocation from order #%s', 'wc-rocket'),
@@ -72,10 +63,9 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
                         __('Sites: %d/%d used', 'wc-rocket'),
                         $allocation->sites_created,
                         $allocation->total_sites
-                    ),
-                    $allocation->id
+                    )
                 ),
-                'allocation_id' => $allocation->id
+                'allocation_id' => $allocation->id  // This will be used by JavaScript to set the hidden input value
             );
 
             error_log('Sending response: ' . print_r($response_data, true));

@@ -41,7 +41,6 @@ defined('ABSPATH') || exit;
 
             <form id="rocket-create-site-form">
                 <?php wp_nonce_field('wc_rocket_nonce', 'nonce'); ?>
-                <!-- Add a hidden input field for allocation_id outside the allocation_details div -->
                 <input type="hidden" id="allocation_id" name="allocation_id" value="">
 
                 <p class="form-row">
