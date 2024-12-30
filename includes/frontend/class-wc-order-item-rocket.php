@@ -5,10 +5,7 @@ if (!class_exists('WC_Order_Item_Rocket')) {
         private static $instance;
 
         public function __construct() {
-            // Remove old site details display
-            remove_action('woocommerce_order_item_meta_end', array($this, 'display_rocket_site_details'));
-
-            // Add allocation info instead
+            // Add allocation info to order items
             add_action('woocommerce_order_item_meta_end', array($this, 'display_rocket_allocation_info'), 10, 3);
         }
 
@@ -38,16 +35,6 @@ if (!class_exists('WC_Order_Item_Rocket')) {
                     $allocation->sites_created
                 );
             }
-        }
-
-        public function wc_rocket_order_item_meta_data($formatted_meta, $order_item) {
-            // Remove old site details meta keys
-            foreach ($formatted_meta as $key => $meta) {
-                if (in_array($meta->key, array('rocket_site_name', 'rocket_site_location'))) {
-                    unset($formatted_meta[$key]);
-                }
-            }
-            return $formatted_meta;
         }
 
         public static function get_instance() {
