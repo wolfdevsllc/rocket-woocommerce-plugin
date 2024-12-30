@@ -52,17 +52,24 @@ if (!class_exists('WC_Rocket_Site_Allocations')) {
          * @return int
          */
         public function get_customer_available_allocations($customer_id) {
-            global $wpdb;
-            $table_name = $wpdb->prefix . self::$wc_rocket_site_allocations_table;
+            $cache_key = 'customer_available_allocations_' . $customer_id;
+            $result = wp_cache_get($cache_key, 'wc_rocket');
 
-            $sql = $wpdb->prepare(
-                "SELECT SUM(total_sites - sites_created) as available_sites
-                FROM $table_name
-                WHERE customer_id = %d",
-                $customer_id
-            );
+            if (false === $result) {
+                global $wpdb;
+                $table_name = $wpdb->prefix . self::$wc_rocket_site_allocations_table;
 
-            $result = $wpdb->get_var($sql);
+                $sql = $wpdb->prepare(
+                    "SELECT SUM(total_sites - sites_created) as available_sites
+                    FROM $table_name
+                    WHERE customer_id = %d",
+                    $customer_id
+                );
+
+                $result = $wpdb->get_var($sql);
+                wp_cache_set($cache_key, $result, 'wc_rocket', HOUR_IN_SECONDS);
+            }
+
             return intval($result);
         }
 
@@ -115,6 +122,11 @@ if (!class_exists('WC_Rocket_Site_Allocations')) {
                 AND sites_created < total_sites",
                 $allocation_id
             ));
+        }
+
+        public function clear_customer_allocations_cache($customer_id) {
+            wp_cache_delete('customer_allocations_' . $customer_id, 'wc_rocket');
+            wp_cache_delete('customer_available_allocations_' . $customer_id, 'wc_rocket');
         }
     }
 }
