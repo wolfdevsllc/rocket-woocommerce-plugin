@@ -1,16 +1,13 @@
 jQuery(document).ready(function ($) {
   console.log("WC Rocket script loaded");
 
-  // Get AJAX URL from the wp object if wc_rocket_params is not available
-  var ajaxurl =
-    typeof wc_rocket_params !== "undefined"
-      ? wc_rocket_params.ajax_url
-      : ajaxurl;
-  var nonce =
-    typeof wc_rocket_params !== "undefined" ? wc_rocket_params.nonce : "";
+  if (typeof wc_rocket_params === "undefined") {
+    console.error("WC Rocket params not found!");
+    return;
+  }
 
-  console.log("AJAX URL:", ajaxurl);
-  console.log("Nonce:", nonce);
+  console.log("AJAX URL:", wc_rocket_params.ajax_url);
+  console.log("Nonce:", wc_rocket_params.nonce);
 
   // Show create site form
   $(document).on("click", ".create-new-site-btn", function (e) {
@@ -21,11 +18,11 @@ jQuery(document).ready(function ($) {
 
     // Get available allocations for this user
     $.ajax({
-      url: ajaxurl,
+      url: wc_rocket_params.ajax_url,
       method: "POST",
       data: {
         action: "get_available_allocations",
-        nonce: nonce,
+        nonce: wc_rocket_params.nonce,
       },
       success: function (response) {
         console.log("Allocation response:", response);
