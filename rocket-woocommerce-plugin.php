@@ -62,17 +62,10 @@ if ( WC_Rocket_Dependencies::wc_active_check() ) :
     require_once WC_ROCKET_FILE . 'includes/class-wc-rocket-order-handler.php';
 
     if (is_admin()) {
-        require_once WC_ROCKET_FILE . 'includes/admin/class-wc-rocket-client-sites.php';
         require_once WC_ROCKET_FILE . 'includes/admin/class-wc-rocket-allocation-manager.php';
     }
 
-    // Initialize our new classes
-    add_action('init', function() {
-        WC_Rocket_Order_Handler::get_instance();
-        if (is_admin()) {
-            WC_Rocket_Client_Sites::get_instance();
-        }
-    });
+    WC_Rocket_Order_Handler::get_instance();
 
 else :
     add_action('admin_notices', 'wc_rocket_inactive_notice');

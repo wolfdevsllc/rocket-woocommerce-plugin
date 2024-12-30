@@ -50,17 +50,16 @@ class WC_Rocket_Order_Handler {
             $order_id
         ));
 
-        foreach ($allocations as $allocation) {
-            // Get sites for this allocation
-            $sites = $wpdb->get_results($wpdb->prepare(
-                "SELECT * FROM {$wpdb->prefix}wc_rocket_sites
-                WHERE allocation_id = %d",
-                $allocation->id
-            ));
-
-            foreach ($sites as $site) {
-                // Disable site access
-                $this->disable_site_access($site);
+        if (!empty($allocations)) {
+            foreach ($allocations as $allocation) {
+                // Update allocation status or perform any necessary actions
+                $wpdb->update(
+                    $wpdb->prefix . 'wc_rocket_site_allocations',
+                    array('status' => 'disabled'),
+                    array('id' => $allocation->id),
+                    array('%s'),
+                    array('%d')
+                );
             }
         }
     }
