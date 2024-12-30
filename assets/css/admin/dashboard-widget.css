@@ -1,0 +1,36 @@
+.wc-rocket-dashboard-stats .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.wc-rocket-dashboard-stats .stat-box {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.wc-rocket-dashboard-stats .stat-label {
+  display: block;
+  color: #666;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.wc-rocket-dashboard-stats .stat-value {
+  display: block;
+  font-size: 24px;
+  font-weight: bold;
+  color: #2271b1;
+}
+
+.wc-rocket-dashboard-stats h3 {
+  margin: 20px 0 10px;
+}
+
+.wc-rocket-dashboard-stats .allocation-links {
+  margin-top: 15px;
+  text-align: right;
+}

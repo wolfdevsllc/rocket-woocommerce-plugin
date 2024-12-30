@@ -1,0 +1,48 @@
+.wc-rocket-my-sites-wrap .button{
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+    white-space: nowrap;
+    min-width: fit-content;
+}
+
+.wc-rocket-my-sites-wrap table{
+    table-layout: fixed;
+}
+
+.wc-rocket-my-sites-wrap table th,
+.wc-rocket-my-sites-wrap table td{
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
+
+.wc-rocket-my-sites-wrap .rocket-site-name-wrap .rocket-site-name{
+    max-width: 100%
+}
+
+.rocket-site-name-wrap a.button {
+    display: inline-block;
+    text-transform: capitalize;
+    width: auto;
+    margin: 4px 0;
+}
+
+.rocket-site-name-wrap a.button.hide,
+.rocket-site-name-wrap .rocket-site-name.hide,
+.rocket-site-name-wrapper .site-name-display.hide{
+    display: none;
+}
+
+.rocket-site-msg-container .woocommerce-error,
+.rocket-site-msg-container .woocommerce-message {
+    border-left-width: 5px;
+    padding: 0.5em 1em 0.5em 2em;
+    font-size: 12px;
+    line-height: normal;
+    margin-bottom: 10px;
+}
+
+.rocket-site-msg-container .woocommerce-error:before,
+.rocket-site-msg-container .woocommerce-message:before {
+    left: 0.5em;
+}

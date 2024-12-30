@@ -1,0 +1,23 @@
+.wc-rocket-allocations .order-status {
+  display: inline-block;
+  margin-left: 5px;
+  color: #777;
+}
+
+.wc-rocket-allocations .total-sites-column {
+  position: relative;
+}
+
+.wc-rocket-allocations .total-sites-edit {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.wc-rocket-allocations .total-sites-input {
+  width: 80px;
+}
+
+.wc-rocket-allocations .button {
+  margin: 0 2px;
+}

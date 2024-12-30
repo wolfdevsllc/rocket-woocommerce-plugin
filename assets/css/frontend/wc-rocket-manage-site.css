@@ -1,0 +1,13 @@
+.woocommerce .woocommerce-MyAccount-content {
+    width: 100% !important;
+}
+
+.storefront-breadcrumb {
+    margin: 0px !important;
+}
+
+@media(min-width: 768px){
+    .storefront-breadcrumb {
+        margin: 0px !important;
+    }
+}
