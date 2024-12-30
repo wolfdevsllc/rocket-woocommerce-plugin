@@ -40,6 +40,7 @@ defined('ABSPATH') || exit;
             <div id="allocation_details" class="allocation-details"></div>
 
             <form id="rocket-create-site-form">
+                <?php wp_nonce_field('wc_rocket_nonce', 'nonce'); ?>
                 <input type="hidden" id="allocation_id" name="allocation_id" value="">
 
                 <p class="form-row">
@@ -51,22 +52,14 @@ defined('ABSPATH') || exit;
                 <p class="form-row">
                     <label for="site_location"><?php _e('Site Location', 'wc-rocket'); ?> <span class="required">*</span></label>
                     <select name="site_location" id="site_location" required>
-                        <?php
-                        $locations = WC_Rocket_Locations::get_instance()->get_rocket_site_locations();
-                        foreach ($locations as $id => $name) {
-                            echo '<option value="' . esc_attr($id) . '">' . esc_html($name) . '</option>';
-                        }
-                        ?>
+                        <?php foreach (WC_Rocket_Locations::get_instance()->get_rocket_site_locations() as $id => $name) : ?>
+                            <option value="<?php echo esc_attr($id); ?>"><?php echo esc_html($name); ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </p>
 
                 <p class="form-row">
-                    <button type="submit" class="button" id="create-site-submit">
-                        <?php _e('Create Site', 'wc-rocket'); ?>
-                    </button>
-                    <button type="button" class="button cancel-create-site">
-                        <?php _e('Cancel', 'wc-rocket'); ?>
-                    </button>
+                    <button type="submit" class="button"><?php _e('Create Site', 'wc-rocket'); ?></button>
                 </p>
             </form>
         </div>

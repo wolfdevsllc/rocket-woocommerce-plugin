@@ -138,5 +138,15 @@ if (!class_exists('WC_Rocket_Site_Allocations')) {
             wp_cache_delete('customer_allocations_' . $customer_id, 'wc_rocket');
             wp_cache_delete('customer_available_allocations_' . $customer_id, 'wc_rocket');
         }
+
+        public function get_customer_allocations($customer_id) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . self::$wc_rocket_site_allocations_table;
+
+            return $wpdb->get_results($wpdb->prepare(
+                "SELECT * FROM $table_name WHERE customer_id = %d ORDER BY created_at DESC",
+                $customer_id
+            ));
+        }
     }
 }

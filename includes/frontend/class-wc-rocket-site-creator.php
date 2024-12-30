@@ -7,39 +7,79 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
 
         public function __construct() {
             add_action('wp_ajax_create_rocket_site', array($this, 'ajax_create_rocket_site'));
-            add_action('wp_ajax_get_allocation_details', array($this, 'ajax_get_allocation_details'));
+            add_action('wp_ajax_get_available_allocations', array($this, 'ajax_get_available_allocations'));
         }
 
-        public function ajax_get_allocation_details() {
-            check_ajax_referer('wc_rocket_nonce', 'security');
+        public function ajax_get_available_allocations() {
+            check_ajax_referer('wc_rocket_nonce', 'nonce');
 
-            $customer_id = get_current_user_id();
-            $allocation = $this->get_next_available_allocation($customer_id);
-
-            if (!$allocation) {
-                wp_send_json_error(array('message' => __('No available allocations found.', 'wc-rocket')));
-                return;
+            if (!is_user_logged_in()) {
+                wp_send_json_error(array('message' => __('You must be logged in.', 'wc-rocket')));
             }
 
-            $product = wc_get_product($allocation->product_id);
-            $product_data = WC_Product_Rocket_General::get_instance()->get_rocket_product_settings_data($product);
+            $customer_id = get_current_user_id();
+            $allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_allocations($customer_id);
+
+            if (empty($allocations)) {
+                wp_send_json_error(array('message' => __('No allocations available.', 'wc-rocket')));
+            }
+
+            // Get the first available allocation
+            $allocation = null;
+            foreach ($allocations as $alloc) {
+                if ($alloc->total_sites > $alloc->sites_created) {
+                    $allocation = $alloc;
+                    break;
+                }
+            }
+
+            if (!$allocation) {
+                wp_send_json_error(array('message' => __('No available site allocations found.', 'wc-rocket')));
+            }
+
+            $html = sprintf(
+                '<div class="allocation-info">
+                    <p>%s</p>
+                    <p>%s</p>
+                </div>',
+                sprintf(
+                    __('Using allocation from order #%s', 'wc-rocket'),
+                    $allocation->order_id
+                ),
+                sprintf(
+                    __('Sites: %d/%d used', 'wc-rocket'),
+                    $allocation->sites_created,
+                    $allocation->total_sites
+                )
+            );
 
             wp_send_json_success(array(
-                'allocation_id' => $allocation->id,
-                'product_name' => $product->get_name(),
-                'disk_space' => $product_data['disk_space'],
-                'bandwidth' => $product_data['bandwidth'],
-                'remaining_sites' => $allocation->total_sites - $allocation->sites_created
+                'html' => $html,
+                'allocation_id' => $allocation->id
             ));
         }
 
         public function ajax_create_rocket_site() {
-            check_ajax_referer('wc_rocket_nonce', 'security');
+            check_ajax_referer('wc_rocket_nonce', 'nonce');
+
+            if (!is_user_logged_in()) {
+                wp_send_json_error(array('message' => __('You must be logged in.', 'wc-rocket')));
+            }
 
             $customer_id = get_current_user_id();
             $site_name = sanitize_text_field($_POST['site_name']);
             $site_location = intval($_POST['site_location']);
             $allocation_id = isset($_POST['allocation_id']) ? intval($_POST['allocation_id']) : 0;
+
+            if (!$allocation_id) {
+                wp_send_json_error(array('message' => __('No allocation selected.', 'wc-rocket')));
+            }
+
+            // Validate allocation belongs to customer
+            $allocation = $this->get_allocation_by_id($allocation_id);
+            if (!$allocation || $allocation->customer_id !== $customer_id) {
+                wp_send_json_error(array('message' => __('Invalid allocation.', 'wc-rocket')));
+            }
 
             // Validate site name
             if (!$this->validate_site_name($site_name)) {

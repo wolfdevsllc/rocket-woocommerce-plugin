@@ -107,35 +107,22 @@ jQuery(function ($) {
     e.preventDefault();
     var $form = $(".wc-rocket-create-site-form");
 
-    // Get allocation details before showing form
+    // Get available allocations for this user
     $.ajax({
-      url: ajax.ajax_url,
+      url: wc_rocket_params.ajax_url,
       method: "POST",
       data: {
-        action: "get_allocation_details",
-        security: ajax.nonce,
+        action: "get_available_allocations",
+        nonce: wc_rocket_params.nonce,
       },
       success: function (response) {
         if (response.success) {
-          var data = response.data;
-          $("#allocation_details").html(
-            "Creating site using allocation from: " +
-              data.product_name +
-              "<br>" +
-              "Disk Space: " +
-              data.disk_space +
-              "MB<br>" +
-              "Bandwidth: " +
-              data.bandwidth +
-              "MB<br>" +
-              "Remaining sites: " +
-              data.remaining_sites
-          );
-          $("#allocation_id").val(data.allocation_id);
+          // Update allocation details and ID
+          $("#allocation_details").html(response.data.html);
+          $("#allocation_id").val(response.data.allocation_id);
           $form.removeClass("hide");
-          $(".create-new-site-btn").addClass("hide");
         } else {
-          alert(response.data.message);
+          alert(response.data.message || "Error loading allocations");
         }
       },
     });
@@ -148,48 +135,40 @@ jQuery(function ($) {
     $(".create-new-site-btn").removeClass("hide");
   });
 
-  // Handle site creation
+  // Handle site creation form submission
   $("#rocket-create-site-form").on("submit", function (e) {
     e.preventDefault();
-    var $form = $(this);
-    var error_div = $("div#error_div");
-    error_div.hide();
 
-    if (!validateSiteName($("#site_name").val())) {
-      error_div
-        .html(
-          "Invalid site name. Please use only letters, numbers, and hyphens."
-        )
-        .show();
+    var $form = $(this);
+    var $submitButton = $form.find("button[type='submit']");
+    var allocation_id = $("#allocation_id").val();
+
+    if (!allocation_id) {
+      alert("No allocation available");
       return;
     }
 
-    $(".wc-rocket-loader").removeClass("hide");
+    $submitButton.prop("disabled", true);
 
     $.ajax({
-      url: ajax.ajax_url,
+      url: wc_rocket_params.ajax_url,
       method: "POST",
       data: {
         action: "create_rocket_site",
+        nonce: wc_rocket_params.nonce,
         site_name: $("#site_name").val(),
         site_location: $("#site_location").val(),
-        allocation_id: $("#allocation_id").val(),
-        security: ajax.nonce,
+        allocation_id: allocation_id,
       },
       success: function (response) {
-        $(".wc-rocket-loader").addClass("hide");
         if (response.success) {
-          window.location.reload();
+          location.reload();
         } else {
-          error_div.html(response.data.message);
-          error_div.show();
-          $("html, body").animate(
-            {
-              scrollTop: error_div.offset().top - 40,
-            },
-            2000
-          );
+          alert(response.data.message || "Error creating site");
         }
+      },
+      complete: function () {
+        $submitButton.prop("disabled", false);
       },
     });
   });
