@@ -45,7 +45,15 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
 
             error_log('Selected allocation: ' . print_r($allocation, true));
 
-            $html = sprintf(
+            // Make sure allocation_id is properly set in response
+            wp_send_json_success(array(
+                'html' => $this->get_allocation_html($allocation),
+                'allocation_id' => $allocation->id
+            ));
+        }
+
+        private function get_allocation_html($allocation) {
+            return sprintf(
                 '<div class="allocation-info">
                     <p>%s</p>
                     <p>%s</p>
@@ -60,11 +68,6 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
                     $allocation->total_sites
                 )
             );
-
-            wp_send_json_success(array(
-                'html' => $html,
-                'allocation_id' => $allocation->id
-            ));
         }
 
         public function ajax_create_rocket_site() {
@@ -202,12 +205,13 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
             global $wpdb;
             $table_name = $wpdb->prefix . WC_Rocket_Site_Allocations::$wc_rocket_site_allocations_table;
 
-            return $wpdb->get_row($wpdb->prepare(
-                "SELECT * FROM $table_name
-                WHERE id = %d
-                AND sites_created < total_sites",
+            $allocation = $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM $table_name WHERE id = %d",
                 $allocation_id
             ));
+
+            error_log('Retrieved allocation: ' . print_r($allocation, true));
+            return $allocation;
         }
 
         private function generate_random_admin_name() {
