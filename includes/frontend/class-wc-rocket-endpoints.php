@@ -11,7 +11,7 @@ if (!class_exists('WC_Rocket_Endpoints')) {
 
         public function __construct() {
             add_action('init',[$this,'wc_rocket_custom_endpoints']);
-            add_action( 'wp_enqueue_scripts', [$this,'scripts_handler'] );  
+            add_action( 'wp_enqueue_scripts', [$this,'scripts_handler'] );
             add_action('wp_enqueue_scripts', [$this, 'style_handler']);
             add_action('wp_ajax_delete_rocket_site', [$this, 'delete_rocket_site_ajax']);
             add_action('wp_ajax_update_rocket_site', [$this, 'update_rocket_site_ajax']);
@@ -32,7 +32,7 @@ if (!class_exists('WC_Rocket_Endpoints')) {
                 wp_enqueue_script('my_sites_main_page_script');
                 wp_localize_script('my_sites_main_page_script', 'ajax', array('ajax_url' => admin_url('admin-ajax.php')));
             }
-            
+
         }
 
         /**
@@ -102,7 +102,7 @@ if (!class_exists('WC_Rocket_Endpoints')) {
 
             return $title;
         }
-        
+
         /**
          * add my site menu item to my account page menu items
          * @param array $items
@@ -163,11 +163,11 @@ if (!class_exists('WC_Rocket_Endpoints')) {
                     "primary_menu_hover_color" => WC_Rocket_Admin_Settings_Page::get_portal_customization_primary_menu_hover_color(),
                     "primary_menu_active_color" => WC_Rocket_Admin_Settings_Page::get_portal_customization_primary_menu_active_color(),
                 ];
-    
+
                 $this->manage_site_scripts_handler($data);
                 $is_manage_page_allowed = true;
             }
-            
+
             wc_rocket_site_get_template(
                 'my-sites/manage-site-page.php',
                 array(
@@ -219,7 +219,7 @@ if (!class_exists('WC_Rocket_Endpoints')) {
             }
             wp_die();
         }
-        
+
         /**
          * ajax to update rocket site data
          */
@@ -233,7 +233,7 @@ if (!class_exists('WC_Rocket_Endpoints')) {
             if( $site_data['site_id'] && $site_data['site_name']){
                 $success = WC_Rocket_Sites_Crud::get_instance()->update_site_from_rocket_sites_table($site_data);
             }
-            
+
             if( $success){
                 wc_add_notice( __( 'The site is updated successfully.', 'wc-rocket' ) );
                 $message = wc_print_notices( true );
@@ -243,7 +243,7 @@ if (!class_exists('WC_Rocket_Endpoints')) {
                 $message = wc_print_notices( true );
                 echo  wp_send_json_error( array ('message' => $message) );
             }
-            
+
         }
 
         /**
@@ -255,7 +255,7 @@ if (!class_exists('WC_Rocket_Endpoints')) {
          */
         public function wc_rocket_manage_site_breadcrumb($crumbs, $breadcrumbs) {
             global $wp_query;
-            
+
             if ( $this->check_wc_rocket_manage_site_page() ) {
                 remove_filter('woocommerce_get_breadcrumb', array($this, 'wc_rocket_manage_site_breadcrumb'), 10, 2);
                 //reset breadcrumbs
@@ -272,10 +272,10 @@ if (!class_exists('WC_Rocket_Endpoints')) {
                 $crumbs = apply_filters('wc_rocket_manage_site_get_breadcrumb', $breadcrumbs->get_breadcrumb());
                 add_filter('woocommerce_get_breadcrumb', array($this, 'wc_rocket_manage_site_breadcrumb'), 10, 2);
             }
-            
+
             return $crumbs;
         }
-        
+
         /**
          * remove wc account navigation from manage site page
          */
@@ -296,10 +296,10 @@ if (!class_exists('WC_Rocket_Endpoints')) {
             if ( ! is_null( $wp_query ) && ! is_admin() && is_main_query() && is_account_page() && isset( $wp_query->query_vars[ 'my-sites' ] ) ) {
                 return true;
             }
-            
+
             return false;
         }
-        
+
         /**
          * check wc rocket my site page
          * @global array $wp_query
@@ -310,7 +310,7 @@ if (!class_exists('WC_Rocket_Endpoints')) {
             if ( ! is_null( $wp_query ) && ! is_admin() && is_main_query() && is_account_page() && isset( $wp_query->query_vars[ 'manage-site' ] ) ) {
                 return true;
             }
-            
+
             return false;
         }
 
