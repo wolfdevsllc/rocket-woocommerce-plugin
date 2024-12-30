@@ -13,11 +13,26 @@ if (!class_exists('WC_Order_Rocket')) {
             // Hook into both order status changes and payment complete
             add_action('woocommerce_order_status_changed', array($this, 'wc_create_rocket_site'), 10, 4);
             add_action('woocommerce_payment_complete', array($this, 'handle_payment_complete'));
+
+            // Add debugging action
+            add_action('init', array($this, 'debug_log'), 99);
+        }
+
+        public function debug_log() {
+            if (!defined('WP_DEBUG') || !WP_DEBUG) {
+                return;
+            }
+            error_log('WC_Order_Rocket initialized');
         }
 
         public function handle_payment_complete($order_id) {
+            error_log('Payment complete for order: ' . $order_id);
+
             $order = wc_get_order($order_id);
-            if (!$order) return;
+            if (!$order) {
+                error_log('Order not found: ' . $order_id);
+                return;
+            }
 
             $this->wc_create_rocket_site($order_id, $order->get_status(), 'completed', $order);
         }
@@ -31,31 +46,37 @@ if (!class_exists('WC_Order_Rocket')) {
          * @param object $order
          */
         public function wc_create_rocket_site($order_id, $previous_status, $next_status, $order) {
-            // Check if allocation already created for this order
+            error_log("Processing order {$order_id}: {$previous_status} -> {$next_status}");
+
+            // Check if allocation already created
             if (get_post_meta($order_id, 'rocket_allocation_created', true)) {
+                error_log("Order {$order_id} already has allocation");
                 return;
             }
 
-            // Get valid status to create rocket allocation
-            $create_site_valid_status = $this->valid_order_status_create_site();
-            if (!in_array($next_status, $create_site_valid_status)) {
+            // Validate status
+            $valid_statuses = $this->valid_order_status_create_site();
+            if (!in_array($next_status, $valid_statuses)) {
+                error_log("Invalid status for order {$order_id}: {$next_status}");
                 return;
             }
 
-            // Get order customer id
-            $order_customer_id = $order->get_customer_id();
-            if (!$order_customer_id) {
+            // Get customer ID
+            $customer_id = $order->get_customer_id();
+            if (!$customer_id) {
+                error_log("No customer ID for order {$order_id}");
                 return;
             }
 
-            // Get rocket product id from order
-            $rocket_item_data = $this->get_rocket_order_item_data($order);
-            if (empty($rocket_item_data['rocket_product_id'])) {
+            // Get rocket product
+            $rocket_data = $this->get_rocket_order_item_data($order);
+            if (empty($rocket_data['rocket_product_id'])) {
+                error_log("No rocket product found in order {$order_id}");
                 return;
             }
 
-            // Create allocation
-            $this->create_site_allocation($order_id, $order_customer_id, $rocket_item_data['rocket_product_id']);
+            error_log("Creating allocation for order {$order_id}");
+            $this->create_site_allocation($order_id, $customer_id, $rocket_data['rocket_product_id']);
         }
 
         private function create_site_allocation($order_id, $customer_id, $product_id) {
@@ -111,7 +132,8 @@ if (!class_exists('WC_Order_Rocket')) {
 
             foreach ($order->get_items() as $item) {
                 $product = $item->get_product();
-                if (WC_Product_Rocket_General::get_instance()->check_wc_product_is_rocket($product)) {
+                if ($product && WC_Product_Rocket_General::get_instance()->check_wc_product_is_rocket($product)) {
+                    error_log("Found rocket product: " . $product->get_id());
                     $data['rocket_product_id'] = $product->get_id();
                     break;
                 }

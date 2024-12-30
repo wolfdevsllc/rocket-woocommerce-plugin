@@ -83,6 +83,8 @@ if (!class_exists('WC_Rocket_Site_Allocations')) {
             global $wpdb;
             $table_name = $wpdb->prefix . self::$wc_rocket_site_allocations_table;
 
+            error_log('Creating allocation with data: ' . print_r($allocation_data, true));
+
             $result = $wpdb->insert(
                 $table_name,
                 array(
@@ -90,12 +92,20 @@ if (!class_exists('WC_Rocket_Site_Allocations')) {
                     'customer_id' => $allocation_data['customer_id'],
                     'product_id' => $allocation_data['product_id'],
                     'total_sites' => $allocation_data['total_sites'],
-                    'sites_created' => 0
+                    'sites_created' => 0,
+                    'created_at' => current_time('mysql')
                 ),
-                array('%d', '%d', '%d', '%d', '%d')
+                array('%d', '%d', '%d', '%d', '%d', '%s')
             );
 
-            return $result ? $wpdb->insert_id : false;
+            if ($result === false) {
+                error_log('Database error: ' . $wpdb->last_error);
+                return false;
+            }
+
+            $insert_id = $wpdb->insert_id;
+            error_log('Created allocation with ID: ' . $insert_id);
+            return $insert_id;
         }
 
         /**
