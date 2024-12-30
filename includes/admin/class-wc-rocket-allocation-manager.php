@@ -120,6 +120,21 @@ if (!class_exists('WC_Rocket_Allocation_Manager')) {
             }
         }
 
+        private function get_row_actions($allocation) {
+            $actions = array();
+
+            // View sites action now links to Client Sites page with order filter
+            $actions['view'] = sprintf(
+                '<a href="%s" class="button">%s</a>',
+                admin_url('admin.php?page=wc-rocket-client-sites&order_id=' . $allocation->order_id),
+                __('View Sites', 'wc-rocket')
+            );
+
+            // ... other actions ...
+
+            return $actions;
+        }
+
         public static function get_instance() {
             if (!isset(self::$instance)) {
                 self::$instance = new self();
