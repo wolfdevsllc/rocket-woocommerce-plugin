@@ -8,8 +8,8 @@ if (!class_exists('WC_Product_Rocket_Settings')) {
     class WC_Product_Rocket_Settings {
 
         public static $instance;
-
         public static $rocket_usage_mb = 1024;
+        private $rocket_fields;
 
         public function __construct() {
             $this->rocket_fields = array(

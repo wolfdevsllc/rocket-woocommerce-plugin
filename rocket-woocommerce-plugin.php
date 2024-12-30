@@ -19,7 +19,7 @@ if (!defined('WC_ROCKET_URL')) {
 }
 
 if (!defined('WC_ROCKET_VERSION')) {
-    define('WC_ROCKET_VERSION', '1.0.0');
+    define('WC_ROCKET_VERSION', '2.0.1');
 }
 
 // ----------------------- START SITE STATUS----------//
@@ -36,6 +36,10 @@ if (!defined('WC_CANCELLED_ORDER_STATUS')) {
     define('WC_CANCELLED_ORDER_STATUS', 'cancelled');
 }
 // ----------------------- END WC ORDER STATUS----------//
+
+// Register activation hook early
+require_once plugin_dir_path(__FILE__) . 'includes/class-wc-rocket-installer.php';
+register_activation_hook(__FILE__, array('WC_Rocket_Installer', 'install'));
 
 /**
  * Adds notice in case of WC and WC Subscriptions being inactive
@@ -91,6 +95,7 @@ class WC_Rocket_Plugin {
 
     public function __construct()
     {
+        require_once WC_ROCKET_FILE . 'includes/class-wc-rocket-installer.php';
 
         require_once WC_ROCKET_FILE . 'includes/index.php';
 

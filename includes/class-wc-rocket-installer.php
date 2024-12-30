@@ -5,37 +5,29 @@ if (!class_exists('WC_Rocket_Installer')) {
         private static $instance;
 
         public function __construct() {
-            // Run installer on plugin activation
-            register_activation_hook(WC_ROCKET_FILE, array($this, 'install'));
-
-            // Check if we need to run updates
             add_action('plugins_loaded', array($this, 'check_version'));
         }
 
-        public function install() {
+        public static function install() {
             error_log('Running WC Rocket installer');
-            $this->create_tables();
-
-            // Store current version
+            self::create_tables();
             update_option('wc_rocket_version', WC_ROCKET_VERSION);
         }
 
         public function check_version() {
             if (get_option('wc_rocket_version') != WC_ROCKET_VERSION) {
-                $this->install();
+                self::install();
             }
         }
 
-        private function create_tables() {
+        private static function create_tables() {
             global $wpdb;
-
-            $wpdb->hide_errors();
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            $charset_collate = $wpdb->get_charset_collate();
 
-            $collate = $wpdb->has_cap('collation') ? $wpdb->get_charset_collate() : '';
-
-            $tables = "
-            CREATE TABLE IF NOT EXISTS {$wpdb->prefix}wc_rocket_site_allocations (
+            // Site Allocations Table
+            $allocations_table = $wpdb->prefix . 'wc_rocket_site_allocations';
+            $sql_allocations = "CREATE TABLE IF NOT EXISTS $allocations_table (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 order_id BIGINT UNSIGNED NOT NULL,
                 customer_id BIGINT UNSIGNED NOT NULL,
@@ -48,19 +40,48 @@ if (!class_exists('WC_Rocket_Installer')) {
                 KEY order_id (order_id),
                 KEY customer_id (customer_id),
                 KEY product_id (product_id)
-            ) $collate;";
+            ) $charset_collate;";
 
-            error_log('Creating tables with SQL: ' . $tables);
+            // Sites Table
+            $sites_table = $wpdb->prefix . 'wc_rocket_sites';
+            $sql_sites = "CREATE TABLE IF NOT EXISTS $sites_table (
+                id mediumint(9) NOT NULL AUTO_INCREMENT,
+                site_id INT NOT NULL,
+                customer_id INT NOT NULL,
+                product_id INT NOT NULL,
+                order_id INT NULL,
+                domain VARCHAR(255) NOT NULL,
+                site_name VARCHAR(255) NULL,
+                status INT NOT NULL,
+                admin_email VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                deleted_at TIMESTAMP NULL,
+                PRIMARY KEY  (id)
+            ) $charset_collate;";
 
-            // Run the SQL
-            dbDelta($tables);
+            // Run the SQL queries
+            dbDelta($sql_allocations);
+            dbDelta($sql_sites);
 
-            // Check if table was created
-            $table_name = $wpdb->prefix . 'wc_rocket_site_allocations';
-            if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-                error_log('Failed to create table: ' . $table_name);
-            } else {
-                error_log('Successfully created table: ' . $table_name);
+            // Verify tables were created
+            self::verify_table_creation();
+        }
+
+        private static function verify_table_creation() {
+            global $wpdb;
+            $tables = array(
+                'wc_rocket_site_allocations',
+                'wc_rocket_sites'
+            );
+
+            foreach ($tables as $table) {
+                $table_name = $wpdb->prefix . $table;
+                if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+                    error_log("Failed to create table: $table_name");
+                } else {
+                    error_log("Successfully created table: $table_name");
+                }
             }
         }
 

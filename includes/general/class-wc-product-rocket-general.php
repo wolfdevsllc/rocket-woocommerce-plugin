@@ -16,24 +16,16 @@ if (!class_exists('WC_Product_Rocket_General')) {
             'variable-subscription'
         );
 
-        public function __construct() {
-            error_log('WC_Product_Rocket_General initialized');
-        }
-
         /**
          * Check if product is a rocket product
          */
         public function check_wc_product_is_rocket($product) {
             if (!$product) {
-                error_log('Product is null');
                 return false;
             }
 
-            error_log('Checking product ID: ' . $product->get_id());
-
             // Check if product has sites limit meta
             $sites_limit = get_post_meta($product->get_id(), 'rocket_sites_limit', true);
-            error_log('Product sites limit: ' . $sites_limit);
 
             return !empty($sites_limit);
         }

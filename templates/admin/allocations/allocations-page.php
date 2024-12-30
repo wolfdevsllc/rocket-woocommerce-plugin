@@ -27,26 +27,58 @@
                     <td>
                         <?php
                         echo esc_html($allocation->customer_name);
-                        if (!empty($allocation->user_email)) {
-                            echo '<br><small>' . esc_html($allocation->user_email) . '</small>';
-                        }
+                        printf(' (#%d)', $allocation->customer_id);
                         ?>
                     </td>
-                    <td><?php echo esc_html($allocation->product_name); ?></td>
                     <td>
-                        <a href="<?php echo esc_url(admin_url('post.php?post=' . $allocation->order_id . '&action=edit')); ?>">
-                            #<?php echo esc_html($allocation->order_id); ?>
+                        <a href="<?php echo get_edit_post_link($allocation->product_id); ?>">
+                            <?php echo esc_html($allocation->product_name); ?>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="<?php echo get_edit_post_link($allocation->order_id); ?>">
+                            <?php echo '#' . $allocation->order_id; ?>
+                            <span class="order-status status-<?php echo esc_attr($allocation->order_status); ?>">
+                                (<?php echo wc_get_order_status_name($allocation->order_status); ?>)
+                            </span>
                         </a>
                     </td>
                     <td><?php echo esc_html($allocation->sites_created); ?></td>
-                    <td><?php echo esc_html($allocation->total_sites); ?></td>
-                    <td><?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($allocation->created_at))); ?></td>
-                    <td class="actions">
-                        <?php
-                        if (method_exists($this, 'get_row_actions')) {
-                            echo $this->get_row_actions($allocation);
-                        }
-                        ?>
+                    <td class="total-sites-column">
+                        <span class="total-sites-display"><?php echo esc_html($allocation->total_sites); ?></span>
+                        <div class="total-sites-edit" style="display: none;">
+                            <input type="number"
+                                   class="total-sites-input"
+                                   value="<?php echo esc_attr($allocation->total_sites); ?>"
+                                   min="<?php echo esc_attr($allocation->sites_created); ?>"
+                                   step="1">
+                            <button class="button save-allocation" data-id="<?php echo esc_attr($allocation->id); ?>">
+                                <?php _e('Save', 'wc-rocket'); ?>
+                            </button>
+                            <button class="button cancel-edit">
+                                <?php _e('Cancel', 'wc-rocket'); ?>
+                            </button>
+                        </div>
+                        <button class="button edit-allocation">
+                            <?php _e('Edit', 'wc-rocket'); ?>
+                        </button>
+                    </td>
+                    <td>
+                        <?php echo esc_html(
+                            date_i18n(
+                                get_option('date_format') . ' ' . get_option('time_format'),
+                                strtotime($allocation->created_at)
+                            )
+                        ); ?>
+                    </td>
+                    <td>
+                        <a href="<?php echo esc_url(add_query_arg(array(
+                            'page' => 'wc-rocket-sites',
+                            'customer_id' => $allocation->customer_id
+                        ), admin_url('admin.php'))); ?>"
+                           class="button">
+                            <?php _e('View Sites', 'wc-rocket'); ?>
+                        </a>
                     </td>
                 </tr>
             <?php endforeach; ?>

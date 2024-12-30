@@ -10,41 +10,6 @@ if (!class_exists('WC_Rocket_Site_Allocations')) {
         public static $instance;
         public static $wc_rocket_site_allocations_table = 'wc_rocket_site_allocations';
 
-        public function __construct() {
-            // Create allocations table
-            add_action('init', array($this, 'create_rocket_site_allocations_table'));
-        }
-
-        /**
-         * Create rocket site allocations table
-         *
-         * @global object $wpdb
-         */
-        public function create_rocket_site_allocations_table() {
-            global $wpdb;
-            $charset_collate = $wpdb->get_charset_collate();
-            $table_name = $wpdb->prefix . self::$wc_rocket_site_allocations_table;
-
-            $query = $wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table_name));
-
-            if (!$wpdb->get_var($query) == $table_name) {
-                $sql = "CREATE TABLE $table_name (
-                    id bigint(20) NOT NULL AUTO_INCREMENT,
-                    order_id bigint(20) NOT NULL,
-                    customer_id bigint(20) NOT NULL,
-                    product_id bigint(20) NOT NULL,
-                    total_sites int(11) NOT NULL,
-                    sites_created int(11) DEFAULT 0,
-                    created_at datetime DEFAULT CURRENT_TIMESTAMP,
-                    updated_at datetime DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY  (id)
-                ) $charset_collate;";
-
-                require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-                dbDelta($sql);
-            }
-        }
-
         /**
          * Get customer's available site allocations
          *
