@@ -4,7 +4,7 @@ class WC_Rocket_Client_Sites {
     private static $instance;
 
     public function __construct() {
-        add_action('admin_menu', array($this, 'add_menu_item'));
+        add_action('admin_menu', array($this, 'add_menu_item'), 55);
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
     }
 
@@ -24,14 +24,39 @@ class WC_Rocket_Client_Sites {
 
         // Get all sites with their allocation and order information
         $sites = $wpdb->get_results("
-            SELECT s.*, a.order_id, u.user_email
+            SELECT
+                s.*,
+                a.order_id,
+                u.user_email,
+                u.display_name,
+                o.post_status as order_status
             FROM {$wpdb->prefix}wc_rocket_sites s
             LEFT JOIN {$wpdb->prefix}wc_rocket_site_allocations a ON s.allocation_id = a.id
             LEFT JOIN {$wpdb->users} u ON s.customer_id = u.ID
-            ORDER BY s.id DESC
+            LEFT JOIN {$wpdb->posts} o ON a.order_id = o.ID
+            ORDER BY s.created_at DESC
         ");
 
-        include WC_ROCKET_PATH . 'templates/admin/client-sites.php';
+        // Debug
+        error_log('Client Sites Query: ' . $wpdb->last_query);
+        error_log('Found Sites: ' . print_r($sites, true));
+
+        // Add filter by order ID if provided
+        if (isset($_GET['order_id'])) {
+            $order_id = intval($_GET['order_id']);
+            $sites = array_filter($sites, function($site) use ($order_id) {
+                return $site->order_id == $order_id;
+            });
+        }
+
+        // Include the template
+        if (file_exists(WC_ROCKET_FILE . 'templates/admin/client-sites.php')) {
+            include WC_ROCKET_FILE . 'templates/admin/client-sites.php';
+        } else {
+            error_log('Template file not found: ' . WC_ROCKET_FILE . 'templates/admin/client-sites.php');
+            echo '<div class="wrap"><h1>' . __('Client Sites', 'wc-rocket') . '</h1>';
+            echo '<div class="notice notice-error"><p>' . __('Template file not found.', 'wc-rocket') . '</p></div></div>';
+        }
     }
 
     public function enqueue_scripts($hook) {
