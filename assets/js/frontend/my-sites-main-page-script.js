@@ -120,8 +120,9 @@ jQuery(function ($) {
       success: function (response) {
         console.log("Allocation response:", response);
         if (response.success) {
-          // Update allocation details and ID
+          // Update allocation details
           $("#allocation_details").html(response.data.html);
+          // Set the allocation ID in the hidden input
           $("#allocation_id").val(response.data.allocation_id);
           console.log("Set allocation ID to:", response.data.allocation_id);
           console.log(
