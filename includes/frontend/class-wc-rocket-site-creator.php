@@ -102,14 +102,25 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
             $site_location = intval($_POST['site_location']);
             $allocation_id = isset($_POST['allocation_id']) ? intval($_POST['allocation_id']) : 0;
 
+            error_log('Creating site with:');
+            error_log('Customer ID: ' . $customer_id);
+            error_log('Site Name: ' . $site_name);
+            error_log('Site Location: ' . $site_location);
+            error_log('Allocation ID: ' . $allocation_id);
+
             if (!$allocation_id) {
                 wp_send_json_error(array('message' => __('No allocation selected.', 'wc-rocket')));
             }
 
-            // Validate allocation belongs to customer
+            // Debug allocation lookup
             $allocation = $this->get_allocation_by_id($allocation_id);
-            if (!$allocation || $allocation->customer_id !== $customer_id) {
+            error_log('Found allocation: ' . print_r($allocation, true));
+
+            if (!$allocation || $allocation->customer_id != $customer_id) {
+                error_log('Invalid allocation - allocation: ' . ($allocation ? 'exists' : 'null'));
+                error_log('Customer ID match: ' . ($allocation && $allocation->customer_id == $customer_id ? 'yes' : 'no'));
                 wp_send_json_error(array('message' => __('Invalid allocation.', 'wc-rocket')));
+                return;
             }
 
             // Validate site name
@@ -223,14 +234,20 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
 
         private function get_allocation_by_id($allocation_id) {
             global $wpdb;
-            $table_name = $wpdb->prefix . WC_Rocket_Site_Allocations::$wc_rocket_site_allocations_table;
 
-            $allocation = $wpdb->get_row($wpdb->prepare(
-                "SELECT * FROM $table_name WHERE id = %d",
+            error_log('Looking up allocation ID: ' . $allocation_id);
+
+            $query = $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}wc_rocket_site_allocations WHERE id = %d",
                 $allocation_id
-            ));
+            );
 
-            error_log('Retrieved allocation: ' . print_r($allocation, true));
+            error_log('Running query: ' . $query);
+
+            $allocation = $wpdb->get_row($query);
+
+            error_log('Query result: ' . print_r($allocation, true));
+
             return $allocation;
         }
 
