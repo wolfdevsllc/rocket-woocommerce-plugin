@@ -27,33 +27,32 @@ if (!class_exists('WC_Rocket_Frontend')) {
                 WC_ROCKET_VERSION . '.' . time()
             );
 
-            // Enqueue JS
-            $script_url = WC_ROCKET_URL . 'assets/js/frontend/my-sites-main-page-script.js';
-            error_log('Script URL: ' . $script_url);
-
+            // Register JS first
             wp_register_script(
                 'wc-rocket-my-sites',
-                $script_url,
+                WC_ROCKET_URL . 'assets/js/frontend/my-sites-main-page-script.js',
                 array('jquery'),
                 WC_ROCKET_VERSION . '.' . time(),
                 true
             );
 
-            $script_data = array(
+            // Then localize
+            wp_localize_script('wc-rocket-my-sites', 'wc_rocket_params', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('wc_rocket_nonce')
-            );
+                'nonce' => wp_create_nonce('wc_rocket_nonce'),
+                'strings' => array(
+                    'no_allocation' => __('No allocation available', 'wc-rocket'),
+                    'error_loading' => __('Error loading allocations', 'wc-rocket'),
+                    'error_creating' => __('Error creating site', 'wc-rocket')
+                )
+            ));
 
-            wp_localize_script('wc-rocket-my-sites', 'wc_rocket_params', $script_data);
+            // Finally enqueue
             wp_enqueue_script('wc-rocket-my-sites');
 
-            // Verify enqueued assets
-            if (wp_script_is('wc-rocket-my-sites', 'enqueued')) {
-                error_log('Script successfully enqueued');
-            }
-            if (wp_style_is('wc-rocket-my-sites', 'enqueued')) {
-                error_log('Styles successfully enqueued');
-            }
+            // Debug output
+            error_log('Script URL: ' . WC_ROCKET_URL . 'assets/js/frontend/my-sites-main-page-script.js');
+            error_log('Script params: ' . print_r(wp_scripts()->get_data('wc-rocket-my-sites', 'data'), true));
         }
 
         public static function get_instance() {
