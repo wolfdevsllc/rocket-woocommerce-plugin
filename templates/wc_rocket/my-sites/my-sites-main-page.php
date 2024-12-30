@@ -122,3 +122,15 @@ defined('ABSPATH') || exit;
 
     <?php do_action('wc_rocket_after_my_sites_table'); ?>
 </div>
+
+<?php
+// Debug output
+echo "<!-- Debug Info -->\n";
+echo "<!-- WC Rocket Scripts: -->\n";
+global $wp_scripts;
+foreach ($wp_scripts->registered as $handle => $script) {
+    if (strpos($handle, 'wc-rocket') !== false) {
+        echo "<!-- $handle: {$script->src} -->\n";
+    }
+}
+?>

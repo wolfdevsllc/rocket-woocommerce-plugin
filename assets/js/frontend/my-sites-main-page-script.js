@@ -1,4 +1,49 @@
-jQuery(function ($) {
+jQuery(document).ready(function ($) {
+  console.log("WC Rocket script loaded");
+
+  // Check if wc_rocket_params exists
+  if (typeof wc_rocket_params === "undefined") {
+    console.error("wc_rocket_params is not defined");
+    return;
+  }
+
+  // Show create site form
+  $(document).on("click", ".create-new-site-btn", function (e) {
+    e.preventDefault();
+    var $form = $(".wc-rocket-create-site-form");
+
+    console.log("Getting allocations...");
+    console.log("AJAX URL:", wc_rocket_params.ajax_url);
+
+    // Get available allocations for this user
+    $.ajax({
+      url: wc_rocket_params.ajax_url,
+      method: "POST",
+      data: {
+        action: "get_available_allocations",
+        nonce: wc_rocket_params.nonce,
+      },
+      success: function (response) {
+        console.log("Allocation response:", response);
+        if (response.success) {
+          // Update allocation details and ID
+          $("#allocation_details").html(response.data.html);
+          $("#allocation_id").val(response.data.allocation_id);
+          console.log("Set allocation ID to:", response.data.allocation_id);
+          $form.removeClass("hide");
+        } else {
+          alert(response.data.message || "Error loading allocations");
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("AJAX error:", error);
+        console.error("Status:", status);
+        console.error("Response:", xhr.responseText);
+        alert("Error loading allocations");
+      },
+    });
+  });
+
   $(document).on("click", ".delete-rocket-site", function (e) {
     e.preventDefault();
     var site_id = $(this).data("site-id");
@@ -101,45 +146,6 @@ jQuery(function ($) {
       .find(".site-name-display, .rocket-site-name-edit")
       .removeClass("hide");
   }
-
-  // Show create site form
-  $(document).on("click", ".create-new-site-btn", function (e) {
-    e.preventDefault();
-    var $form = $(".wc-rocket-create-site-form");
-
-    console.log("Getting allocations...");
-
-    // Get available allocations for this user
-    $.ajax({
-      url: wc_rocket_params.ajax_url,
-      method: "POST",
-      data: {
-        action: "get_available_allocations",
-        nonce: wc_rocket_params.nonce,
-      },
-      success: function (response) {
-        console.log("Allocation response:", response);
-        if (response.success) {
-          // Update allocation details
-          $("#allocation_details").html(response.data.html);
-          // Set the allocation ID in the hidden input
-          $("#allocation_id").val(response.data.allocation_id);
-          console.log("Set allocation ID to:", response.data.allocation_id);
-          console.log(
-            "Current allocation input value:",
-            $("#allocation_id").val()
-          );
-          $form.removeClass("hide");
-        } else {
-          alert(response.data.message || "Error loading allocations");
-        }
-      },
-      error: function (xhr, status, error) {
-        console.error("AJAX error:", error);
-        alert("Error loading allocations");
-      },
-    });
-  });
 
   // Handle site creation form submission
   $("#rocket-create-site-form").on("submit", function (e) {

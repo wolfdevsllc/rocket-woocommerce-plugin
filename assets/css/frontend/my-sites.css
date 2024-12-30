@@ -1,0 +1,70 @@
+/* Form visibility */
+.wc-rocket-create-site-form.hide {
+  display: none;
+}
+
+/* Form styling */
+.wc-rocket-create-site-form {
+  max-width: 600px;
+  margin: 20px 0;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.wc-rocket-create-site-form h3 {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.wc-rocket-create-site-form .form-row {
+  margin-bottom: 15px;
+}
+
+.wc-rocket-create-site-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.wc-rocket-create-site-form .required {
+  color: #ff0000;
+}
+
+.wc-rocket-create-site-form input[type="text"],
+.wc-rocket-create-site-form select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Allocation details styling */
+.allocation-info {
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #f8f8f8;
+  border-left: 4px solid #2271b1;
+}
+
+.allocation-info p {
+  margin: 5px 0;
+}
+
+/* Button styling */
+.wc-rocket-create-site-form .button {
+  margin-right: 10px;
+}
+
+.wc-rocket-create-site-form .cancel-create-site {
+  background: #f1f1f1;
+  border-color: #ddd;
+}
+
+/* Error messages */
+.wc-rocket-create-site-form .error {
+  color: #dc3232;
+  margin-top: 5px;
+}
