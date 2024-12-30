@@ -214,6 +214,20 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
             return 'admin_' . wp_generate_password(8, false);
         }
 
+        private function get_next_available_allocation($customer_id) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . WC_Rocket_Site_Allocations::$wc_rocket_site_allocations_table;
+
+            return $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM $table_name
+                WHERE customer_id = %d
+                AND sites_created < total_sites
+                ORDER BY created_at ASC
+                LIMIT 1",
+                $customer_id
+            ));
+        }
+
         public static function get_instance() {
             if (!isset(self::$instance)) {
                 self::$instance = new self();
