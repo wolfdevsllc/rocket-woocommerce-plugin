@@ -9,7 +9,7 @@ if (!class_exists('WC_Rocket_Frontend')) {
         }
 
         public function enqueue_scripts() {
-            wp_enqueue_script(
+            wp_register_script(
                 'wc-rocket-my-sites',
                 WC_ROCKET_URL . 'assets/js/frontend/my-sites-main-page-script.js',
                 array('jquery'),
@@ -21,6 +21,8 @@ if (!class_exists('WC_Rocket_Frontend')) {
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('wc_rocket_nonce')
             ));
+
+            wp_enqueue_script('wc-rocket-my-sites');
         }
 
         public static function get_instance() {
