@@ -6,4 +6,3 @@ include 'class-import-wc-rocket-product.php';
 include_once 'class-wc-rocket-allocation-manager.php';
 include_once 'class-wc-rocket-dashboard-widgets.php';
 include_once 'class-wc-rocket-order-admin.php';
-include_once 'class-wc-rocket-product-admin.php';

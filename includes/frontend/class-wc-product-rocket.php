@@ -14,56 +14,54 @@ if (!class_exists('WC_Product_Rocket')) {
             add_filter('woocommerce_product_tabs', array($this, 'woocommerce_rocket_product_tabs'), 99);
             // mark rocket product as sold individual
             add_filter('woocommerce_is_sold_individually', array($this, 'wc_rocket_product_sold_individually'), 10, 2);
-            // cart must have only one rocket product 
+            // cart must have only one rocket product
             add_filter('woocommerce_add_to_cart_validation', array($this, 'validate_wc_rocket_product'), 10, 2);
         }
 
         /**
-         * add product rocket custom tabs
-         * 
-         * @global object $product
-         * @return array
+         * Add rocket product tab
          */
         public function woocommerce_rocket_product_tabs($tabs) {
             global $product;
-            // check is wc product rocket is enabled
-            if (!WC_Product_Rocket_General::get_instance()->check_wc_product_is_rocket($product))
+
+            if (!WC_Product_Rocket_General::get_instance()->check_wc_product_is_rocket($product)) {
                 return $tabs;
-            // add product rocket tab
-            $tabs['product_rocket'] = array(
-                'title' => __('Hosting Details', 'wc-rocket'),
-                'priority' => 10,
-                'callback' => array($this, 'woocommerce_product_rocket_tab'),
+            }
+
+            $tabs['rocket'] = array(
+                'title' => __('Rocket Details', 'wc-rocket'),
+                'priority' => 50,
+                'callback' => array($this, 'wc_rocket_product_tab_content')
             );
+
             return $tabs;
         }
 
         /**
-         * display product rocket tab content 
+         * Rocket product tab content
          */
-        public function woocommerce_product_rocket_tab() {
+        public function wc_rocket_product_tab_content() {
             global $product;
-            $rocket_product_data = WC_Product_Rocket_General::get_instance()->get_rocket_product_settings_data($product);
-            // get product rocket visitors
-            $rocket_visitors = $rocket_product_data['visitors'];
-            // get product rocket disk space
-            $rocket_disk_space = WC_Product_Rocket_Settings::get_rocket_disk_data($rocket_product_data['disk_space']);
-            // get product rocket disk space
-            $rocket_bandwidth = WC_Product_Rocket_Settings::get_rocket_disk_data($rocket_product_data['bandwidth']);
-            
-            wc_rocket_site_get_template(
-                    'single-product/tabs/product-rocket.php',
-                    array(
-                            'rocket_visitors' => $rocket_visitors,
-                            'rocket_disk_space' => $rocket_disk_space,
-                            'rocket_bandwidth' => $rocket_bandwidth
-                        )
+
+            // Get rocket product settings
+            $rocket_settings = array(
+                'rocket_visitors' => get_post_meta($product->get_id(), 'rocket_visitors', true),
+                'rocket_disk_space' => get_post_meta($product->get_id(), 'rocket_disk_space', true),
+                'rocket_bandwidth' => get_post_meta($product->get_id(), 'rocket_bandwidth', true)
             );
+
+            // Format the values for display
+            $rocket_visitors = !empty($rocket_settings['rocket_visitors']) ? number_format($rocket_settings['rocket_visitors']) : '0';
+            $rocket_disk_space = !empty($rocket_settings['rocket_disk_space']) ? size_format($rocket_settings['rocket_disk_space'] * MB_IN_BYTES) : '0 MB';
+            $rocket_bandwidth = !empty($rocket_settings['rocket_bandwidth']) ? size_format($rocket_settings['rocket_bandwidth'] * MB_IN_BYTES) : '0 MB';
+
+            // Include the template
+            include WC_ROCKET_FILE . 'templates/wc_rocket/single-product/tabs/product-rocket.php';
         }
 
         /**
          * mark rocket product as sold individual
-         * 
+         *
          * @param boolean $sold_individually
          * @param object $product
          * @return boolean
@@ -76,8 +74,8 @@ if (!class_exists('WC_Product_Rocket')) {
         }
 
         /**
-         * cart must have only one rocket product 
-         * 
+         * cart must have only one rocket product
+         *
          * @param boolean $passed
          * @param int $product_id
          * @return boolean
@@ -108,9 +106,9 @@ if (!class_exists('WC_Product_Rocket')) {
          * @return object
          */
         public static function get_instance() {
-            if (!isset(self::$instance) || is_null(self::$instance))
+            if (!isset(self::$instance)) {
                 self::$instance = new self();
-
+            }
             return self::$instance;
         }
 

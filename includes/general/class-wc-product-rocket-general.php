@@ -7,7 +7,14 @@ if (!class_exists('WC_Product_Rocket_General')) {
 
     class WC_Product_Rocket_General {
 
-        private static $instance;
+        public static $instance;
+
+        public static $rocket_product_types = array(
+            'simple',
+            'variable',
+            'subscription',
+            'variable-subscription'
+        );
 
         public function __construct() {
             error_log('WC_Product_Rocket_General initialized');
