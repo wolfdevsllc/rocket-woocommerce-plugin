@@ -21,6 +21,8 @@ if (!class_exists('WC_Rocket_Endpoints')) {
             add_filter('woocommerce_get_breadcrumb', array($this, 'wc_rocket_manage_site_breadcrumb'), 10, 2);
             // remove wc account navigation from manage site page
             add_action( 'woocommerce_account_navigation', array($this, 'wc_rocket_manage_site_remove_navigation'), 1 );
+            // Add redirect from dashboard to my-sites
+            add_action('template_redirect', [$this, 'redirect_dashboard_to_my_sites']);
         }
 
         public function scripts_handler(){
@@ -348,6 +350,20 @@ if (!class_exists('WC_Rocket_Endpoints')) {
                 self::$instance = new self();
 
             return self::$instance;
+        }
+
+        public function redirect_dashboard_to_my_sites() {
+            // Only redirect if:
+            // 1. We're on the account page
+            // 2. No endpoint is set (dashboard)
+            // 3. Not already on my-sites endpoint
+            if (is_account_page() &&
+                empty(WC()->query->get_current_endpoint()) &&
+                !isset($GLOBALS['wp']->query_vars['my-sites'])) {
+
+                wp_safe_redirect(wc_get_account_endpoint_url('my-sites'));
+                exit;
+            }
         }
 
     }
