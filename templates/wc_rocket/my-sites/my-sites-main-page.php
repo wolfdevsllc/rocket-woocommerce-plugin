@@ -128,8 +128,20 @@ $ajax_params = array(
         <div class="woocommerce-message woocommerce-message--info woocommerce-Message woocommerce-Message--info woocommerce-info">
             <?php _e('No sites exist!', 'wc-rocket'); ?>
         </div>
+        <?php
+        $total_allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_total_allocations(get_current_user_id());
+        $available_allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_available_allocations(get_current_user_id());
+
+        if ($total_allocations > 0 && $available_allocations === 0) {
+            // Has allocations but all used - show Upgrade Plan
+            $button_text = __('Upgrade Plan', 'wc-rocket');
+        } else {
+            // No allocations or other cases - show View Hosting Plans
+            $button_text = __('View Hosting Plans', 'wc-rocket');
+        }
+        ?>
         <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="button">
-            <?php _e('Order Now', 'wc-rocket'); ?>
+            <?php echo $button_text; ?>
         </a>
     <?php endif; ?>
 
