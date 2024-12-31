@@ -6,13 +6,6 @@
  */
 defined('ABSPATH') || exit;
 
-// // Check user access
-// $has_access = get_user_meta(get_current_user_id(), 'wc_rocket_site_access', true);
-// if ($has_access === 'disabled') {
-//     wp_redirect(wc_get_account_endpoint_url('dashboard'));
-//     exit;
-// }
-
 $ajax_params = array(
     'ajax_url' => admin_url('admin-ajax.php'),
     'nonce' => wp_create_nonce('wc_rocket_nonce')
@@ -134,6 +127,9 @@ $ajax_params = array(
     <?php else : ?>
         <div class="woocommerce-message woocommerce-message--info woocommerce-Message woocommerce-Message--info woocommerce-info">
             <?php _e('No sites exist!', 'wc-rocket'); ?>
+            <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="button">
+                <?php _e('Order Now', 'wc-rocket'); ?>
+            </a>
         </div>
     <?php endif; ?>
 
@@ -141,13 +137,15 @@ $ajax_params = array(
 </div>
 
 <?php
-// Debug output
-echo "<!-- Debug Info -->\n";
-echo "<!-- WC Rocket Scripts: -->\n";
-global $wp_scripts;
-foreach ($wp_scripts->registered as $handle => $script) {
-    if (strpos($handle, 'wc-rocket') !== false) {
-        echo "<!-- $handle: {$script->src} -->\n";
+if (current_user_can('administrator')) {
+    // Debug output
+    echo "<!-- Debug Info -->\n";
+    echo "<!-- WC Rocket Scripts: -->\n";
+    global $wp_scripts;
+    foreach ($wp_scripts->registered as $handle => $script) {
+        if (strpos($handle, 'wc-rocket') !== false) {
+            echo "<!-- $handle: {$script->src} -->\n";
+        }
     }
 }
 ?>
