@@ -113,5 +113,27 @@ if (!class_exists('WC_Rocket_Site_Allocations')) {
                 $customer_id
             ));
         }
+
+        public function get_customer_total_allocations($customer_id) {
+            $cache_key = 'customer_total_allocations_' . $customer_id;
+            $result = wp_cache_get($cache_key, 'wc_rocket');
+
+            if (false === $result) {
+                global $wpdb;
+                $table_name = $wpdb->prefix . self::$wc_rocket_site_allocations_table;
+
+                $sql = $wpdb->prepare(
+                    "SELECT SUM(total_sites) as total_sites
+                    FROM $table_name
+                    WHERE customer_id = %d",
+                    $customer_id
+                );
+
+                $result = (int) $wpdb->get_var($sql);
+                wp_cache_set($cache_key, $result, 'wc_rocket', HOUR_IN_SECONDS);
+            }
+
+            return (int) $result;
+        }
     }
 }
