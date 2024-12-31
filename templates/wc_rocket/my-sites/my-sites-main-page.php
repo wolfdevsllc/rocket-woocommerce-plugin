@@ -127,10 +127,10 @@ $ajax_params = array(
     <?php else : ?>
         <div class="woocommerce-message woocommerce-message--info woocommerce-Message woocommerce-Message--info woocommerce-info">
             <?php _e('No sites exist!', 'wc-rocket'); ?>
-            <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="button">
-                <?php _e('Order Now', 'wc-rocket'); ?>
-            </a>
         </div>
+        <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="button">
+            <?php _e('Order Now', 'wc-rocket'); ?>
+        </a>
     <?php endif; ?>
 
     <?php do_action('wc_rocket_after_my_sites_table'); ?>
