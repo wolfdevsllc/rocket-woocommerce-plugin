@@ -91,7 +91,8 @@ if (!class_exists('WC_Product_Rocket')) {
                         $item_product = wc_get_product($item_product_id);
                         if ( $item_product && WC_Product_Rocket_General::get_instance()->check_wc_product_is_rocket($item_product) ) {
                             WC()->cart->remove_cart_item( $item_key );
-                            wc_add_notice( __( 'Must have one rocket product in cart', 'wc-rocket' ), 'notice' );
+                            $notice_message = apply_filters('wc_rocket_single_product_notice', __( 'Must have one rocket product in cart', 'wc-rocket' ));
+                            wc_add_notice($notice_message, 'notice');
 
                         }
                     }
