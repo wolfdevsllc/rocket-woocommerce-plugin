@@ -361,9 +361,11 @@ if (!class_exists('WC_Rocket_Endpoints')) {
                 // 1. We're on the account page
                 // 2. No endpoint is set (dashboard)
                 // 3. Not already on my-sites endpoint
+                // 4. Not on manage-site endpoint
                 if (is_account_page() &&
                     empty(WC()->query->get_current_endpoint()) &&
-                    !isset($GLOBALS['wp']->query_vars['my-sites'])) {
+                    !isset($GLOBALS['wp']->query_vars['my-sites']) &&
+                    !isset($GLOBALS['wp']->query_vars['manage-site'])) {
 
                     wp_safe_redirect(wc_get_account_endpoint_url('my-sites'));
                     exit;
