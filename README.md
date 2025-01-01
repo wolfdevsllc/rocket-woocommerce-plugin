@@ -4,27 +4,24 @@ A WordPress plugin that integrates with Rocket.net to enable reselling WordPress
 
 ## Description
 
-The Rocket WooCommerce Plugin provides a seamless integration between WooCommerce and Rocket.net's hosting services. It allows website owners to resell WordPress hosting services directly through their WooCommerce store.
+This version of the plugin is a fork of the original Rocket WooCommerce Plugin developed by the Rocket.net team. The Rocket WooCommerce Plugin offers seamless integration between WooCommerce and Rocket.net's hosting services, enabling website owners to resell WordPress hosting services directly through their WooCommerce store. For more information about the original plugin, visit the [Rocket.net WooCommerce Plugin page](https://support.rocket.net/hc/en-us/articles/4409254082459-Getting-started-with-Rocket-net-WooCommerce-Plugin).
 
 ## Features
 
 ### Original Features
 
-- Site Allocation Management
-- Customer Site Creation
+- Customer Site Creation on checkout
 - Hosting Location Selection
 - Site Management Dashboard
 - Real-time Site Status Monitoring
 - Integrated Billing through WooCommerce
-- Custom Control Panel Integration
 
 ### Enhanced Features
 
+- Site Allocation Management
 - Improved UI/UX for site management
 - Dynamic site allocation display
 - Interactive site creation form
-- Real-time loading indicators
-- Streamlined site name editing
 - Enhanced error handling and user feedback
 - Responsive design improvements
 - Optimized AJAX operations
@@ -46,9 +43,9 @@ The Rocket WooCommerce Plugin provides a seamless integration between WooCommerc
 
 ## Configuration
 
-1. Navigate to WooCommerce > Settings > Rocket Hosting
-2. Enter your Rocket.net API credentials
-3. Configure your hosting packages
+1. Navigate to Rocket.net from WordPress dashboard
+2. Enter your Rocket.net login details
+3. Configure your hosting packages with WooCommerce products
 4. Set up pricing and allocation limits
 
 ## Usage
