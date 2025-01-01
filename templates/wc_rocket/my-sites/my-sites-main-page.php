@@ -67,7 +67,7 @@ $ajax_params = array(
                     </select>
                 </p>
 
-                <p class="form-row">
+                <p class="form-row button-container">
                     <button type="submit" class="button"><?php _e('Create Site', 'wc-rocket'); ?></button>
                     <button type="button" class="button cancel-create-site"><?php _e('Cancel', 'wc-rocket'); ?></button>
                 </p>

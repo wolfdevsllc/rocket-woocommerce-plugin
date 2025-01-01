@@ -54,8 +54,8 @@
 
 /* Form styling */
 .wc-rocket-create-site-form {
-  max-width: 600px;
-  margin: 20px 0;
+  width: 600px;
+  margin: 0 auto;
   padding: 20px;
   background: #fff;
   border: 1px solid #ddd;
@@ -93,7 +93,7 @@
 /* Allocation details styling */
 .allocation-info {
   margin-bottom: 20px;
-  padding: 10px;
+  padding: 5px 10px;
   background: #f8f8f8;
   border-left: 4px solid #2271b1;
 }
