@@ -15,8 +15,18 @@ jQuery(document).ready(function ($) {
     var $form = $(".wc-rocket-create-site-form");
     var $mainContent = $(".wc-rocket-my-sites-content");
     var $allocationsInfo = $(".wc-rocket-available-allocations");
+    var $wrapper = $(".wc-rocket-my-sites-wrap");
 
     console.log("Getting allocations...");
+
+    // Show loading overlay
+    $wrapper.block({
+      message: null,
+      overlayCSS: {
+        background: "#fff",
+        opacity: 0.6,
+      },
+    });
 
     // Get available allocations for this user
     $.ajax({
@@ -45,6 +55,10 @@ jQuery(document).ready(function ($) {
         console.error("Status:", status);
         console.error("Response:", xhr.responseText);
         alert("Error loading allocations");
+      },
+      complete: function () {
+        // Remove loading overlay
+        $wrapper.unblock();
       },
     });
   });
@@ -158,8 +172,18 @@ jQuery(document).ready(function ($) {
 
     var $form = $(this);
     var $submitButton = $form.find("button[type='submit']");
+    var $wrapper = $(".wc-rocket-my-sites-wrap");
 
     $submitButton.prop("disabled", true);
+
+    // Show loading overlay
+    $wrapper.block({
+      message: null,
+      overlayCSS: {
+        background: "#fff",
+        opacity: 0.6,
+      },
+    });
 
     $.ajax({
       url: wc_rocket_params.ajax_url,
@@ -185,6 +209,8 @@ jQuery(document).ready(function ($) {
       },
       complete: function () {
         $submitButton.prop("disabled", false);
+        // Remove loading overlay
+        $wrapper.unblock();
       },
     });
   });
