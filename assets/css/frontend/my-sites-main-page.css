@@ -117,3 +117,28 @@
   color: #dc3232;
   margin-top: 5px;
 }
+
+.wc-rocket-available-allocations {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 30px;
+  align-items: center;
+}
+
+.wc-rocket-available-allocations p,
+.wc-rocket-available-allocations button.create-new-site-btn {
+  margin: 0;
+}
+
+.wc-rocket-available-allocations p {
+  font-size: 18px;
+}
+
+.wc-rocket-available-allocations button.create-new-site-btn {
+  width: auto;
+  padding-inline: 25px;
+  border-radius: 5px;
+  border: 2px solid var(--deep-blue);
+  background: transparent;
+}
