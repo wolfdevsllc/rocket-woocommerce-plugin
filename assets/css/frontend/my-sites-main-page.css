@@ -142,3 +142,13 @@
   border: 2px solid var(--deep-blue);
   background: transparent;
 }
+
+#rocket-create-site-form .button-container button {
+  background-color: var(--deep-blue);
+  color: #ffff;
+  border-radius: 5px;
+}
+
+#rocket-create-site-form .button-container .cancel-create-site {
+  background-color: #a52a2a;
+}
