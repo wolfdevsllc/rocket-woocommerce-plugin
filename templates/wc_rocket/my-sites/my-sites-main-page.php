@@ -73,85 +73,87 @@ $ajax_params = array(
                 </p>
             </form>
         </div>
-    <?php endif; ?>
 
-    <?php do_action('wc_rocket_before_my_sites_table'); ?>
+        <div class="wc-rocket-my-sites-content">
+            <?php do_action('wc_rocket_before_my_sites_table'); ?>
 
-    <?php if (isset($my_sites) && count($my_sites) > 0) : ?>
-        <table>
-            <thead>
-                <tr>
-                    <th><?php _e('ID', 'wc-rocket'); ?></th>
-                    <th><?php _e('Site Name', 'wc-rocket'); ?></th>
-                    <th><?php _e('Created at', 'wc-rocket'); ?></th>
-                    <?php do_action('wc_rocket_add_header_of_new_col_to_my_sites_table'); ?>
-                    <th><?php _e('Actions', 'wc-rocket'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($my_sites as $my_site) : ?>
-                    <tr>
-                        <td><?php echo esc_html($my_site->site_id); ?></td>
-                        <td class="rocket-site-name-wrapper">
-                            <?php $my_site_name = ($my_site->site_name) ? $my_site->site_name : ""; ?>
-                            <div class="rocket-site-msg-container" hidden> </div>
-                            <span class="site-name-display">
-                                <?= $my_site_name; ?>
-                            </span>
-                            <div class="rocket-site-name-wrap">
-                                <input type="text" class="rocket-site-name hide" value="<?= $my_site_name ?>">
-                                <a href="#" class="rocket-site-name-edit button"><?php _e('Edit', 'wc-rocket'); ?></a>
-                                <a href="#" class="rocket-site-name-save button hide" data-site-id="<?= isset($my_site->site_id) ? $my_site->site_id : "";  ?>">
-                                    <?php _e('save', 'wc-rocket'); ?>
-                                </a>
-                                <a href="#" class="rocket-site-name-cancel button hide">
-                                    <?php _e('Cancel', 'wc-rocket'); ?>
-                                </a>
-                            </div>
-                        </td>
-                        <td>
-                            <?php echo esc_html(date("F j, Y, g:i a", strtotime($my_site->created_at))); ?>
-                        </td>
-                        <?php do_action('wc_rocket_add_data_of_new_col_to_my_sites_table'); ?>
-                        <td>
-                            <?php if (isset($show_manage_btn) && $show_manage_btn) : ?>
-                                <a class="button" href="<?php echo esc_url(wc_get_endpoint_url('manage-site', $my_site->site_id, get_permalink(get_option('woocommerce_myaccount_page_id')))); ?>">
-                                    <?php _e('Manage', 'wc-rocket'); ?>
-                                </a>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php else : ?>
-        <div class="no-sites-container">
-            <div class="woocommerce-message woocommerce-message--info woocommerce-Message woocommerce-Message--info woocommerce-info">
-                <?php _e('No sites exist!', 'wc-rocket'); ?>
-            </div>
-            <?php
-            $total_allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_total_allocations(get_current_user_id());
-            $available_allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_available_allocations(get_current_user_id());
+            <?php if (isset($my_sites) && count($my_sites) > 0) : ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><?php _e('ID', 'wc-rocket'); ?></th>
+                            <th><?php _e('Site Name', 'wc-rocket'); ?></th>
+                            <th><?php _e('Created at', 'wc-rocket'); ?></th>
+                            <?php do_action('wc_rocket_add_header_of_new_col_to_my_sites_table'); ?>
+                            <th><?php _e('Actions', 'wc-rocket'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($my_sites as $my_site) : ?>
+                            <tr>
+                                <td><?php echo esc_html($my_site->site_id); ?></td>
+                                <td class="rocket-site-name-wrapper">
+                                    <?php $my_site_name = ($my_site->site_name) ? $my_site->site_name : ""; ?>
+                                    <div class="rocket-site-msg-container" hidden> </div>
+                                    <span class="site-name-display">
+                                        <?= $my_site_name; ?>
+                                    </span>
+                                    <div class="rocket-site-name-wrap">
+                                        <input type="text" class="rocket-site-name hide" value="<?= $my_site_name ?>">
+                                        <a href="#" class="rocket-site-name-edit button"><?php _e('Edit', 'wc-rocket'); ?></a>
+                                        <a href="#" class="rocket-site-name-save button hide" data-site-id="<?= isset($my_site->site_id) ? $my_site->site_id : "";  ?>">
+                                            <?php _e('save', 'wc-rocket'); ?>
+                                        </a>
+                                        <a href="#" class="rocket-site-name-cancel button hide">
+                                            <?php _e('Cancel', 'wc-rocket'); ?>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <?php echo esc_html(date("F j, Y, g:i a", strtotime($my_site->created_at))); ?>
+                                </td>
+                                <?php do_action('wc_rocket_add_data_of_new_col_to_my_sites_table'); ?>
+                                <td>
+                                    <?php if (isset($show_manage_btn) && $show_manage_btn) : ?>
+                                        <a class="button" href="<?php echo esc_url(wc_get_endpoint_url('manage-site', $my_site->site_id, get_permalink(get_option('woocommerce_myaccount_page_id')))); ?>">
+                                            <?php _e('Manage', 'wc-rocket'); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else : ?>
+                <div class="no-sites-container">
+                    <div class="woocommerce-message woocommerce-message--info woocommerce-Message woocommerce-Message--info woocommerce-info">
+                        <?php _e('No sites exist!', 'wc-rocket'); ?>
+                    </div>
+                    <?php
+                    $total_allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_total_allocations(get_current_user_id());
+                    $available_allocations = WC_Rocket_Site_Allocations::get_instance()->get_customer_available_allocations(get_current_user_id());
 
-            if ($total_allocations === 0) {
-                // No allocations - show View Hosting Plans
-                $button_text = __('View Hosting Plans', 'wc-rocket');
-            } elseif ($available_allocations === 0) {
-                // Has allocations but all used - show Upgrade Plan
-                $button_text = __('Upgrade Plan', 'wc-rocket');
-            } else {
-                // Has available allocations - show Add New Site
-                $button_text = __('View Hosting Plans', 'wc-rocket');
-            }
-            if ( $available_allocations < 1 || $total_allocations === 0 ) { ?>
-                <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="button no-sites-cta">
-                    <?php echo $button_text; ?>
-                </a>
-            <?php } ?>
+                    if ($total_allocations === 0) {
+                        // No allocations - show View Hosting Plans
+                        $button_text = __('View Hosting Plans', 'wc-rocket');
+                    } elseif ($available_allocations === 0) {
+                        // Has allocations but all used - show Upgrade Plan
+                        $button_text = __('Upgrade Plan', 'wc-rocket');
+                    } else {
+                        // Has available allocations - show Add New Site
+                        $button_text = __('View Hosting Plans', 'wc-rocket');
+                    }
+                    if ( $available_allocations < 1 || $total_allocations === 0 ) { ?>
+                        <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="button no-sites-cta">
+                            <?php echo $button_text; ?>
+                        </a>
+                    <?php } ?>
+                </div>
+            <?php endif; ?>
+
+            <?php do_action('wc_rocket_after_my_sites_table'); ?>
         </div>
     <?php endif; ?>
-
-    <?php do_action('wc_rocket_after_my_sites_table'); ?>
 </div>
 
 <?php

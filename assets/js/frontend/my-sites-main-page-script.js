@@ -13,6 +13,8 @@ jQuery(document).ready(function ($) {
   $(document).on("click", ".create-new-site-btn", function (e) {
     e.preventDefault();
     var $form = $(".wc-rocket-create-site-form");
+    var $mainContent = $(".wc-rocket-my-sites-content");
+    var $allocationsInfo = $(".wc-rocket-available-allocations");
 
     console.log("Getting allocations...");
 
@@ -27,7 +29,11 @@ jQuery(document).ready(function ($) {
       success: function (response) {
         console.log("Allocation response:", response);
         if (response.success) {
-          // Update allocation details only
+          // Hide main content and allocations info
+          $mainContent.addClass("hide");
+          $allocationsInfo.addClass("hide");
+
+          // Update allocation details and show form
           $("#allocation_details").html(response.data.html);
           $form.removeClass("hide");
         } else {
@@ -183,11 +189,19 @@ jQuery(document).ready(function ($) {
     });
   });
 
-  // Hide create site form
+  // Hide create site form and show main content
   $(document).on("click", ".cancel-create-site", function (e) {
     e.preventDefault();
-    $(".wc-rocket-create-site-form").addClass("hide");
-    $(".create-new-site-btn").removeClass("hide");
+    var $form = $(".wc-rocket-create-site-form");
+    var $mainContent = $(".wc-rocket-my-sites-content");
+    var $allocationsInfo = $(".wc-rocket-available-allocations");
+
+    // Hide form
+    $form.addClass("hide");
+
+    // Show main content and allocations info
+    $mainContent.removeClass("hide");
+    $allocationsInfo.removeClass("hide");
   });
 
   function validateSiteName(name) {
