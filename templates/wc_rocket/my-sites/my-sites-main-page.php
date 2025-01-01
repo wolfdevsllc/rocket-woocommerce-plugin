@@ -143,10 +143,11 @@ $ajax_params = array(
                 // Has available allocations - show Add New Site
                 $button_text = __('View Hosting Plans', 'wc-rocket');
             }
-            ?>
-            <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="button no-sites-cta">
-                <?php echo $button_text; ?>
-            </a>
+            if ( $available_allocations > 0 ) { ?>
+                <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="button no-sites-cta">
+                    <?php echo $button_text; ?>
+                </a>
+            <?php } ?>
         </div>
     <?php endif; ?>
 
