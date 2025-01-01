@@ -19,7 +19,7 @@ if (!defined('WC_ROCKET_URL')) {
 }
 
 if (!defined('WC_ROCKET_VERSION')) {
-    define('WC_ROCKET_VERSION', '2.0.1');
+    define('WC_ROCKET_VERSION', '2.0.2');
 }
 
 // ----------------------- START SITE STATUS----------//
