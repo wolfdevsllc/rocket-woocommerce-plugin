@@ -353,16 +353,21 @@ if (!class_exists('WC_Rocket_Endpoints')) {
         }
 
         public function redirect_dashboard_to_my_sites() {
-            // Only redirect if:
-            // 1. We're on the account page
-            // 2. No endpoint is set (dashboard)
-            // 3. Not already on my-sites endpoint
-            if (is_account_page() &&
-                empty(WC()->query->get_current_endpoint()) &&
-                !isset($GLOBALS['wp']->query_vars['my-sites'])) {
+            // Check if the redirection is enabled via filter
+            $enable_redirect = apply_filters('wc_rocket_enable_dashboard_redirect', false);
 
-                wp_safe_redirect(wc_get_account_endpoint_url('my-sites'));
-                exit;
+            if ($enable_redirect) {
+                // Only redirect if:
+                // 1. We're on the account page
+                // 2. No endpoint is set (dashboard)
+                // 3. Not already on my-sites endpoint
+                if (is_account_page() &&
+                    empty(WC()->query->get_current_endpoint()) &&
+                    !isset($GLOBALS['wp']->query_vars['my-sites'])) {
+
+                    wp_safe_redirect(wc_get_account_endpoint_url('my-sites'));
+                    exit;
+                }
             }
         }
 
