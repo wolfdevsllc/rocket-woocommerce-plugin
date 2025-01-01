@@ -47,8 +47,8 @@
   left: 0.5em;
 }
 
-/* Form visibility */
-.wc-rocket-create-site-form.hide {
+/* Visibility */
+.woocommerce-MyAccount-content .hide {
   display: none;
 }
 
