@@ -82,6 +82,53 @@ This plugin is licensed under the terms of use provided by Rocket.net.
 
 - Originally developed by [Rocket.net](https://rocket.net/)
 
+## Available Filters
+
+### Logging Filters
+
+- `wc_rocket_verbose_logging` (boolean)
+  - Default: false
+  - Controls detailed logging output for debugging
+  - Example: `add_filter('wc_rocket_verbose_logging', '__return_true');`
+
+### Site Creation Filters
+
+- `wc_create_site_rocket` (array)
+  - Modifies the site creation request data before sending to Rocket.net API
+  - Parameters: $request_fields (array of site creation data)
+  - Example:
+    ```php
+    add_filter('wc_create_site_rocket', function($request_fields) {
+        $request_fields['label'] = 'Custom-' . $request_fields['name'];
+        return $request_fields;
+    });
+    ```
+
+### Portal Customization Filters
+
+- `wc_rocket_portal_customization_{setting}` (string)
+  - Available for: body_background_color, icon_primary_color, icon_secondary_color,
+    primary_color, primary_hover_color, primary_active_color,
+    primary_menu_hover_color, primary_menu_active_color
+  - Modifies portal UI customization settings
+  - Example:
+    ```php
+    add_filter('wc_rocket_portal_customization_primary_color', function($color) {
+        return '#FF5733';
+    });
+    ```
+
+### Email Filters
+
+- `woocommerce_email_footer_text` (string)
+  - Customizes the footer text in site creation emails
+  - Example:
+    ```php
+    add_filter('woocommerce_email_footer_text', function($text) {
+        return 'Powered by Your Company Name';
+    });
+    ```
+
 ---
 
 For more information about Rocket.net's WordPress hosting services, visit [rocket.net](https://rocket.net/).
