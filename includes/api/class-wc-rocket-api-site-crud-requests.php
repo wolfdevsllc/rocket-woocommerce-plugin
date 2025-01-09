@@ -11,16 +11,26 @@ if (!class_exists('WC_Rocket_Api_Site_Crud_Requests')) {
         public static $unauthorized_status_code = '401';
 
         /**
-         * create new site on rocket 
-         * 
+         * create new site on rocket
+         *
          * @param array $site_data
          * @return array
          */
         public static function create_rocket_new_site($site_data, $rocket_auth_token_is_expired = false) {
+            WC_Rocket_Api_Request::custom_logs('=== Starting API request for site creation ===', false);
+
             // get rocket auth token
             $rocket_auth_token = WC_Rocket_Api_Login_Request::get_instance()->get_rocket_auth_token();
-            if (!$rocket_auth_token)
+            WC_Rocket_Api_Request::custom_logs('Auth token present: ' . ($rocket_auth_token ? 'Yes' : 'No'), false);
+
+            if (!$rocket_auth_token) {
+                WC_Rocket_Api_Request::custom_logs('No auth token available', false);
                 return;
+            }
+
+            // Log request details
+            WC_Rocket_Api_Request::custom_logs('Request URL: partner/sites', false);
+            WC_Rocket_Api_Request::custom_logs('Request Fields: ' . print_r($request_fields, true), false);
 
             // change the static param with database options
             $rocket_ttl = 400;
@@ -46,11 +56,11 @@ if (!class_exists('WC_Rocket_Api_Site_Crud_Requests')) {
             // add site quota
             if($site_data['quota'])
                 $request_fields['quota'] = $site_data['quota'];
-            
+
             // add site bandwidth
             if($site_data['bwlimit'])
                 $request_fields['bwlimit'] = $site_data['bwlimit'];
-            
+
             $request_fields = apply_filters(
                     'wc_create_site_rocket',
                     $request_fields

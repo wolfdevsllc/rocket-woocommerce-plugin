@@ -81,6 +81,9 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
                 wp_send_json_error(array('message' => __('You must be logged in.', 'wc-rocket')));
             }
 
+            WC_Rocket_Api_Request::custom_logs('=== Starting site creation process ===', false);
+            WC_Rocket_Api_Request::custom_logs('POST data: ' . print_r($_POST, true), false);
+
             $customer_id = get_current_user_id();
             $site_name = sanitize_text_field($_POST['site_name']);
             $site_location = intval($_POST['site_location']);
@@ -151,9 +154,15 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
                     'bwlimit' => intval($rocket_product_data['bandwidth'])
                 );
 
+                // Before API call
+                WC_Rocket_Api_Request::custom_logs('Site data being sent to API: ' . print_r($site_data, true), false);
+
                 $response = WC_Rocket_Api_Site_Crud_Requests::get_instance()->create_rocket_new_site($site_data);
 
+                WC_Rocket_Api_Request::custom_logs('API Response: ' . print_r($response, true), false);
+
                 if (!$response || $response['error'] || !isset($response['response'])) {
+                    WC_Rocket_Api_Request::custom_logs('Site creation failed. Error details: ' . print_r($response, true), false);
                     throw new Exception(__('Failed to create site via API.', 'wc-rocket'));
                 }
 
