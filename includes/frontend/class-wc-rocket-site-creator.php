@@ -151,7 +151,8 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
                     'admin_email' => $admin_email,
                     'install_plugins' => WC_Product_Rocket_Settings::get_rocket_product_plugins_install($allocation->product_id),
                     'quota' => intval($rocket_product_data['disk_space']),
-                    'bwlimit' => intval($rocket_product_data['bandwidth'])
+                    'bwlimit' => intval($rocket_product_data['bandwidth']),
+                    'label' => $site_name
                 );
 
                 // Only log if verbose logging is enabled

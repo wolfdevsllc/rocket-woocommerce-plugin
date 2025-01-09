@@ -54,7 +54,8 @@ if (!class_exists('WC_Rocket_Api_Site_Crud_Requests')) {
                 'admin_username' => $site_data['admin_username'],
                 'admin_password' => $site_data['admin_password'],
                 'admin_email' => $site_data['admin_email'],
-                'install_plugins' => $site_data['install_plugins']
+                'install_plugins' => $site_data['install_plugins'],
+                'label' => $site_data['label']
             );
 
             if($site_data['quota']) {
