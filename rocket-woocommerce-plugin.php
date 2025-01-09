@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Rocket WooCommerce Plugin
  * Description: An eCommerce plugin that integrate with rocket.net to Resell WordPress Hosting. This is a fork of the original Rocket WooCommerce Plugin developed by the Rocket.net team.
- * Version: 2.0.2
+ * Version: 2.0.3
  * Author: Al-Mamun Talukder
  * Author URI: https://itsmereal.com
  * Text Domain: wc-rocket
@@ -19,7 +19,7 @@ if (!defined('WC_ROCKET_URL')) {
 }
 
 if (!defined('WC_ROCKET_VERSION')) {
-    define('WC_ROCKET_VERSION', '2.0.2');
+    define('WC_ROCKET_VERSION', '2.0.3');
 }
 
 // ----------------------- START SITE STATUS----------//
