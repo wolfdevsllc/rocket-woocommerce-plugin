@@ -17,14 +17,11 @@ if (!class_exists('WC_Rocket_Api_Site_Crud_Requests')) {
          * @return array
          */
         public static function create_rocket_new_site($site_data, $rocket_auth_token_is_expired = false) {
-            WC_Rocket_Api_Request::custom_logs('=== Starting API request for site creation ===', false);
+            // Only log start if there's an error
+            $start_time = microtime(true);
 
-            // get rocket auth token
-            $rocket_auth_token = WC_Rocket_Api_Login_Request::get_instance()->get_rocket_auth_token();
-
-            // If token is expired or missing, try to refresh it
-            if (!$rocket_auth_token || $rocket_auth_token_is_expired) {
-                WC_Rocket_Api_Request::custom_logs('Token expired or missing - attempting refresh', false);
+            // If token is expired or missing, try to refresh it first
+            if ($rocket_auth_token_is_expired) {
                 $rocket_auth_token = WC_Rocket_Api_Login_Request::get_instance()->refresh_rocket_auth_token();
 
                 if (!$rocket_auth_token) {
@@ -34,22 +31,21 @@ if (!class_exists('WC_Rocket_Api_Site_Crud_Requests')) {
                         'message' => 'Authentication failed. Please log in again.'
                     );
                 }
+
+                $rocket_auth_token = WC_Rocket_Api_Login_Request::get_instance()->get_rocket_auth_token(true);
+            } else {
+                $rocket_auth_token = WC_Rocket_Api_Login_Request::get_instance()->get_rocket_auth_token(true);
             }
 
-            WC_Rocket_Api_Request::custom_logs('Auth token present: ' . ($rocket_auth_token ? 'Yes' : 'No'), false);
+            if (!$rocket_auth_token) {
+                WC_Rocket_Api_Request::custom_logs('No auth token available', true);
+                return array(
+                    'error' => true,
+                    'message' => 'Authentication failed. Please log in again.'
+                );
+            }
 
-            // change the static param with database options
-            $rocket_ttl = 400;
-
-            $request_url = 'partner/sites';
-            $request_method = 'POST';
-            $request_header = array(
-                "Accept: application/json",
-                "Content-Type: application/json",
-                "Authorization: Bearer $rocket_auth_token"
-            );
-
-            // prepare site data
+            // Prepare request data...
             $request_fields = array(
                 'domain' => $site_data['domain'],
                 'multisite' => false,
@@ -61,26 +57,55 @@ if (!class_exists('WC_Rocket_Api_Site_Crud_Requests')) {
                 'install_plugins' => $site_data['install_plugins']
             );
 
-            // add site quota
             if($site_data['quota']) {
                 $request_fields['quota'] = $site_data['quota'];
             }
 
-            // add site bandwidth
             if($site_data['bwlimit']) {
                 $request_fields['bwlimit'] = $site_data['bwlimit'];
             }
 
-            $request_fields = apply_filters(
-                'wc_create_site_rocket',
-                $request_fields
+            $request_fields = apply_filters('wc_create_site_rocket', $request_fields);
+
+            $request_url = 'partner/sites';
+            $request_method = 'POST';
+            $request_header = array(
+                "Accept: application/json",
+                "Content-Type: application/json",
+                "Authorization: Bearer " . $rocket_auth_token
             );
 
-            // Log request details
-            WC_Rocket_Api_Request::custom_logs('Request URL: partner/sites', false);
-            WC_Rocket_Api_Request::custom_logs('Request Fields: ' . print_r($request_fields, true), false);
+            $response = WC_Rocket_Api_Request::get_instance()->rocket_api_curl_request($request_url, $request_method, $request_header, json_encode($request_fields));
 
-            return WC_Rocket_Api_Request::get_instance()->curl_request($request_url, $request_method, $request_header, $request_fields);
+            if($response && isset($response['response'])) {
+                $create_response = is_string($response['response']) ? json_decode($response['response']) : $response['response'];
+
+                // Only log token issues if they occur
+                if(isset($create_response->messages) &&
+                   (in_array("Login token expired, please log in again.", $create_response->messages) ||
+                    in_array("Invalid token, please log in and try again.", $create_response->messages))) {
+                    if(!$rocket_auth_token_is_expired) {
+                        return self::create_rocket_new_site($site_data, true);
+                    }
+                }
+
+                if(isset($create_response->success) && $create_response->success) {
+                    return array(
+                        'error' => false,
+                        'response' => $create_response
+                    );
+                }
+            }
+
+            // Log full details only on error
+            WC_Rocket_Api_Request::custom_logs('Site creation failed. Time taken: ' . (microtime(true) - $start_time) . 's', true);
+            WC_Rocket_Api_Request::custom_logs('Request data: ' . print_r($request_fields, true), true);
+            WC_Rocket_Api_Request::custom_logs('Response: ' . print_r($response, true), true);
+
+            return array(
+                'error' => true,
+                'message' => isset($create_response->messages) ? implode(', ', $create_response->messages) : 'Failed to create site'
+            );
         }
 
        /**

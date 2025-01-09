@@ -17,6 +17,24 @@ if (!class_exists('WC_Create_Rocket_Site_Email', false)) {
     class WC_Create_Rocket_Site_Email extends WC_Email {
 
         /**
+         * Site domain for the created site
+         * @var string
+         */
+        public $site_domain;
+
+        /**
+         * Admin username for the created site
+         * @var string
+         */
+        public $admin_username;
+
+        /**
+         * Admin password for the created site
+         * @var string
+         */
+        public $admin_password;
+
+        /**
          * Constructor
          */
         public function __construct() {
@@ -38,6 +56,11 @@ if (!class_exists('WC_Create_Rocket_Site_Email', false)) {
 
             // Call parent constructor
             parent::__construct();
+
+            // Initialize properties with default values
+            $this->site_domain = '';
+            $this->admin_username = '';
+            $this->admin_password = '';
         }
 
         /**
@@ -45,7 +68,7 @@ if (!class_exists('WC_Create_Rocket_Site_Email', false)) {
          */
         public function trigger($order, $site_domain, $admin_username, $admin_password) {
             $this->setup_locale();
-            
+
             $this->recipient = $order->get_billing_email();
 
             if (!$this->is_enabled() || !$this->get_recipient()) {
@@ -58,7 +81,7 @@ if (!class_exists('WC_Create_Rocket_Site_Email', false)) {
             $this->admin_password = $admin_password;
 
             $this->send($this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments());
-            
+
             $this->restore_locale();
         }
 

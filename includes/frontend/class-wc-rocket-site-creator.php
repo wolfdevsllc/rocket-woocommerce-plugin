@@ -154,20 +154,21 @@ if (!class_exists('WC_Rocket_Site_Creator')) {
                     'bwlimit' => intval($rocket_product_data['bandwidth'])
                 );
 
-                // Before API call
-                WC_Rocket_Api_Request::custom_logs('Site data being sent to API: ' . print_r($site_data, true), false);
+                // Only log if verbose logging is enabled
+                if (apply_filters('wc_rocket_verbose_logging', false)) {
+                    WC_Rocket_Api_Request::custom_logs('Site data being sent to API: ' . print_r($site_data, true), false);
+                }
 
                 $response = WC_Rocket_Api_Site_Crud_Requests::get_instance()->create_rocket_new_site($site_data);
 
-                WC_Rocket_Api_Request::custom_logs('API Response: ' . print_r($response, true), false);
-
                 if (!$response || $response['error'] || !isset($response['response'])) {
-                    WC_Rocket_Api_Request::custom_logs('Site creation failed. Error details: ' . print_r($response, true), false);
+                    // Always log errors
+                    WC_Rocket_Api_Request::custom_logs('Site creation failed: ' . ($response['message'] ?? 'Unknown error'), true);
                     throw new Exception(__('Failed to create site via API.', 'wc-rocket'));
                 }
 
-                $create_response = json_decode($response['response']);
-                if (!$create_response->success) {
+                $create_response = is_string($response['response']) ? json_decode($response['response']) : $response['response'];
+                if (!isset($create_response->success) || !$create_response->success) {
                     throw new Exception(__('API returned error.', 'wc-rocket'));
                 }
 

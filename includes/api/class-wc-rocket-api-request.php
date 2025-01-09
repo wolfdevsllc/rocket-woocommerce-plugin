@@ -57,18 +57,24 @@ if (!class_exists('WC_Rocket_Api_Request')) {
 
         /**
          * function to create log file for rocket api request error messages
-         * 
+         *
          * @param string $message
          * @param bool $messageSent
          */
         public static function custom_logs($message, $error = true) {
+            // Add filter to control verbose logging
+            $verbose_logging = apply_filters('wc_rocket_verbose_logging', false);
 
-            $logger = wc_get_logger();
-            $log_source_text = 'rocket-api-log';
-            if (!$error) {
-                $logger->info(trim(preg_replace('/\s\s+/', ' ', $message)) . "\n", array('source' => $log_source_text));
-            } else {
-                $logger->warning(trim(preg_replace('/\s\s+/', ' ', $message)) . "\n", array('source' => $log_source_text));
+            // Only log if it's an error or verbose logging is enabled
+            if ($error || $verbose_logging) {
+                $logger = wc_get_logger();
+                $log_source_text = 'rocket-api-log';
+
+                if (!$error) {
+                    $logger->info(trim(preg_replace('/\s\s+/', ' ', $message)) . "\n", array('source' => $log_source_text));
+                } else {
+                    $logger->warning(trim(preg_replace('/\s\s+/', ' ', $message)) . "\n", array('source' => $log_source_text));
+                }
             }
         }
 
