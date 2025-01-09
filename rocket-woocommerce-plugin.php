@@ -109,9 +109,11 @@ class WC_Rocket_Plugin {
         // redirect to settings page after plugin active
         add_action( 'activated_plugin', array($this, 'redirect_rocket_settings_page'), 99 );
 
-        // Inside your plugin's main class initialization (likely in __construct or init)
+        // Add script localization
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_rocket_scripts'));
+
+        // Initialize User Manager
         add_action('init', function() {
-            // Initialize User Manager
             WC_Rocket_User_Manager::get_instance();
         });
 
@@ -159,6 +161,35 @@ class WC_Rocket_Plugin {
             exit( wp_redirect( admin_url( 'admin.php?page=rocket-settings' ) ) );
         }
 
+    }
+
+    /**
+     * Enqueue and localize scripts
+     */
+    public function enqueue_rocket_scripts() {
+        global $wp;
+
+        // Only enqueue on my-sites page
+        if (!isset($wp->query_vars['my-sites'])) {
+            return;
+        }
+
+        wp_enqueue_script(
+            'wc-rocket-my-sites-main-page',
+            WC_ROCKET_URL . 'assets/js/frontend/my-sites-main-page-script.js',
+            array('jquery'),
+            WC_ROCKET_VERSION,
+            true
+        );
+
+        wp_localize_script(
+            'wc-rocket-my-sites-main-page',
+            'wc_rocket_params',
+            array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('wc_rocket_nonce')
+            )
+        );
     }
 
     /**
