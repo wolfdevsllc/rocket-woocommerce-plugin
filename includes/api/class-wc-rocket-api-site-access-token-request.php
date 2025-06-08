@@ -76,12 +76,20 @@ if (!class_exists('WC_Rocket_Api_Site_Access_Token_Request')) {
                 if(isset($create_response->success) && $create_response->success){
                     WC_Rocket_Debug::log("Success response - returning result", 'api_requests');
                     return (array) $create_response->result;
-                }else if(isset($create_response->status) && $create_response->status == self::$unauthorized_status_code && !$rocket_auth_token_is_expired){
-                    WC_Rocket_Debug::log("401 Unauthorized - attempting token refresh", 'api_requests');
-                    $token_is_refreshed = WC_Rocket_Api_Login_Request::get_instance()->refresh_rocket_auth_token();
-                    if($token_is_refreshed){
-                        WC_Rocket_Debug::log("Token refreshed - retrying request", 'api_requests');
-                        return self::rocket_api_site_access_token_request($site_id,true);
+                }else if(isset($create_response->success) && !$create_response->success && !$rocket_auth_token_is_expired){
+                    // Check if it's a login token expired error
+                    if(isset($create_response->messages) && is_array($create_response->messages)) {
+                        foreach($create_response->messages as $message) {
+                            if(strpos($message, 'Login token expired') !== false) {
+                                WC_Rocket_Debug::log("Login token expired - attempting token refresh", 'api_requests');
+                                $token_is_refreshed = WC_Rocket_Api_Login_Request::get_instance()->refresh_rocket_auth_token();
+                                if($token_is_refreshed){
+                                    WC_Rocket_Debug::log("Token refreshed - retrying request", 'api_requests');
+                                    return self::rocket_api_site_access_token_request($site_id, true);
+                                }
+                                break;
+                            }
+                        }
                     }
                 } else {
                     WC_Rocket_Debug::log("API returned error or unexpected response structure", 'api_requests');
