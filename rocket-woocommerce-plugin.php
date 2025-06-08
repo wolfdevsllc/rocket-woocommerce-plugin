@@ -74,6 +74,14 @@ if ( WC_Rocket_Dependencies::wc_active_check() ) :
     // After your other includes, before the plugin class definition
     require_once WC_ROCKET_FILE . 'includes/admin/class-wc-rocket-user-manager.php';
 
+    // Include debug helper (add this with your other includes)
+    require_once plugin_dir_path(__FILE__) . 'includes/general/class-wc-rocket-debug.php';
+
+    // Debug control options - change these as needed
+    // WC_Rocket_Debug::set_debug_enabled(false);  // Uncomment to disable all debugging
+    // WC_Rocket_Debug::set_category_enabled('api_requests', false);  // Uncomment to disable API debugging
+    // WC_Rocket_Debug::set_category_enabled('token_generation', false);  // Uncomment to disable token debugging
+
 else :
     add_action('admin_notices', 'wc_rocket_inactive_notice');
     return;

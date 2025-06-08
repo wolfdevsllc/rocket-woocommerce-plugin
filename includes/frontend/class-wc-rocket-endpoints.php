@@ -176,7 +176,16 @@ if (!class_exists('WC_Rocket_Endpoints')) {
             $is_a_valid_user_site = WC_Rocket_Sites_Crud::get_instance()->is_a_user_own_specific_site(get_current_user_id(), $site_id);
 
             if ($is_a_valid_user_site && $control_panel_is_accessed) {
+
+                WC_Rocket_Debug::log("About to generate token for site_id: {$site_id}", 'token_generation');
+                WC_Rocket_Debug::log("User ID: " . get_current_user_id(), 'site_validation');
+                WC_Rocket_Debug::log("Site ownership verified: " . ($is_a_valid_user_site ? 'true' : 'false'), 'site_validation');
+                WC_Rocket_Debug::log("Control panel access: " . ($control_panel_is_accessed ? 'true' : 'false'), 'site_validation');
+
                 $site_access_token = WC_Rocket_Api_Site_Access_Token_Request::get_instance()->generate_site_access_token($site_id);
+
+                WC_Rocket_Debug::log("Generated token result: " . ($site_access_token ? 'SUCCESS' : 'EMPTY'), 'token_generation');
+
                 $data = [
                     "site_id" => $site_id,
                     "site_access_token" => $site_access_token,
